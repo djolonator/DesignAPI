@@ -7,15 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <Compile Remove="Services-Usecases\**" />
+    <EmbeddedResource Remove="Services-Usecases\**" />
+    <None Remove="Services-Usecases\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services-Usecases\" />
-  </ItemGroup>
+	 <ProjectReference Include="..\Infrastracture\Infrastracture.csproj" />
+</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Repositories\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>
