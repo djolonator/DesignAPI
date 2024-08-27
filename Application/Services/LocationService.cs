@@ -17,6 +17,13 @@ namespace Application.Services
             _locationRepository = locationRepository;
         }
 
+        public async Task<List<LocationModel>> GetLocationsAsync()
+        {
+            var locations = await _locationRepository.GetLocationsAsync();
+            var result = _mapper.Map<List<LocationModel>>(locations);
+            return result;
+        }
+
         public async Task<List<LocationModel>> GetNearLocationsAsync(double latitude, double longitude, double radius)
         {
             var nearLocations = await _locationRepository.GetNearLocationsAsync(latitude, longitude, radius);

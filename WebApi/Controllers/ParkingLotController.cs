@@ -29,8 +29,9 @@ namespace WebApi.Controllers
         public async Task<IActionResult> GetLocations()
         {
             double latitude = 44.787197, longitude = 20.457273, radius = 0.00000007848061;
-            var locations = await _locationService.GetNearLocationsAsync(latitude, longitude, radius);
-            return Ok();
+            //var locations = await _locationService.GetNearLocationsAsync(latitude, longitude, radius);
+            var locations = await _locationService.GetLocationsAsync();
+            return Ok(locations);
         }
     }
 }
