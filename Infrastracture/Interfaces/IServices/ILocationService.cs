@@ -1,6 +1,4 @@
-﻿
-
-using Infrastracture.Models;
+﻿using Infrastracture.Models;
 
 namespace Infrastracture.Interfaces.IServices
 {

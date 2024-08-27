@@ -11,7 +11,7 @@ namespace Application.Services
     {
         private readonly IMapper _mapper;
         private readonly ILocationRepository _locationRepository;
-        public LocationService(IMapper mapper, LocationRepository locationRepository)
+        public LocationService(IMapper mapper, ILocationRepository locationRepository)
         {
             _mapper = mapper;
             _locationRepository = locationRepository;

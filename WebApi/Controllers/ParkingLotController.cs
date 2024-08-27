@@ -13,7 +13,7 @@ namespace WebApi.Controllers
     public class ParkingLotController : ControllerBase
     {
         private readonly ILocationService _locationService;
-        public ParkingLotController(LocationService locationService)
+        public ParkingLotController(ILocationService locationService)
         {
             _locationService = locationService;
         }
@@ -32,32 +32,5 @@ namespace WebApi.Controllers
             var locations = await _locationService.GetNearLocationsAsync(latitude, longitude, radius);
             return Ok();
         }
-
-
-        static List<LocationModel> GenerateRandomLocations()
-        {
-            const double fiveHundreedMRadius = 0.00000007848061;
-
-            Random random = new Random();
-            int count = 20;
-            const double centralLat = 44.787197;
-            const double centralLong = 20.457273;
-
-
-            const double latRange = 0.1; 
-            const double longRange = 0.2; 
-
-            LocationModel[] locations = new LocationModel[count];
-
-            for (int i = 0; i < count; i++)
-            {
-                double lat = centralLat + ((random.NextDouble() - 0.5) * latRange);
-                double longi = centralLong + ((random.NextDouble() - 0.5) * longRange);
-                locations[i] = new LocationModel() { Lat = lat, Lng = longi};
-            }
-
-            return locations.ToList();
-        }
-
     }
 }

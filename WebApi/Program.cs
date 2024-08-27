@@ -1,7 +1,9 @@
 using Application;
+using Application.Repositories;
+using Application.Services;
 using Domain;
-using Domain.Entities;
-using Infrastructure;
+using Infrastracture.Interfaces.IRepositories;
+using Infrastracture.Interfaces.IServices;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -10,12 +12,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ParkingDbContext>(options =>
     options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=ParkingDB;Trusted_Connection=True;"));
 
-builder.Services
-    .AddApplication()
-    .AddInfrastructure();
-
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
+
+//builder.Services.
+//    AddInfrastructure().
+//    AddApplication();
+
+//Za sada neka ga ovde
+builder.Services.AddScoped<ILocationRepository, LocationRepository>();
+builder.Services.AddScoped<ILocationService, LocationService>();
 
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
