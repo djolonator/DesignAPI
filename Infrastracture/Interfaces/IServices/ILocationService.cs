@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+
+using Infrastracture.Models;
 
 namespace Infrastracture.Interfaces.IServices
 {
     public interface ILocationService
     {
+        Task<List<LocationModel>> GetNearLocationsAsync(double latitude, double longitude, double radius);
     }
 }

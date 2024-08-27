@@ -1,10 +1,7 @@
-﻿using Application.Models;
-using Application.Services;
-using Domain.Entities;
+﻿using Application.Services;
 using Infrastracture.Interfaces.IServices;
-using Microsoft.AspNetCore.Authorization;
+using Infrastracture.Models;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
@@ -31,6 +28,8 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetLocations()
         {
+            double latitude = 44.787197, longitude = 20.457273, radius = 0.00000007848061;
+            var locations = await _locationService.GetNearLocationsAsync(latitude, longitude, radius);
             return Ok();
         }
 

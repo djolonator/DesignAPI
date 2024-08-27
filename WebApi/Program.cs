@@ -1,14 +1,18 @@
 using Application;
 using Domain;
+using Domain.Entities;
 using Infrastructure;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<ParkingDbContext>();
-builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+builder.Services.AddIdentityApiEndpoints<User>()
     .AddEntityFrameworkStores<ParkingDbContext>();
+
+builder.Services.AddDbContext<ParkingDbContext>(options =>
+    options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=ParkingDB;Trusted_Connection=True;"));
 
 builder.Services
     .AddApplication()
@@ -38,7 +42,7 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-app.MapIdentityApi<IdentityUser>();
+app.MapIdentityApi<User>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -48,11 +52,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 app.UseSerilogRequestLogging();
-
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
