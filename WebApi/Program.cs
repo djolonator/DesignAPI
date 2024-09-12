@@ -4,13 +4,14 @@ using Application.Services;
 using Domain;
 using Infrastracture.Interfaces.IRepositories;
 using Infrastracture.Interfaces.IServices;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<ParkingDbContext>(options =>
-    options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=ParkingDB;Trusted_Connection=True;"));
+builder.Services.AddDbContext<StorageDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
@@ -42,6 +43,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+    .AddEntityFrameworkStores<StorageDbContext>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -49,6 +53,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.MapIdentityApi<IdentityUser>();
 
 app.UseCors();
 app.UseSerilogRequestLogging();

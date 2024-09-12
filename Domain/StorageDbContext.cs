@@ -1,9 +1,10 @@
 ﻿using Domain.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Domain
 {
-    public class ParkingDbContext : DbContext
+    public class StorageDbContext : IdentityDbContext
     {
         public DbSet<Location> Locations { get; set; }
         public DbSet<User> Users { get; set; }
@@ -75,7 +76,7 @@ namespace Domain
             return locations;
         }
 
-        public ParkingDbContext(DbContextOptions<ParkingDbContext> options)
+        public StorageDbContext(DbContextOptions<StorageDbContext> options)
        : base(options)
         {
         }

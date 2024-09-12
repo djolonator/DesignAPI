@@ -7,8 +7,8 @@ namespace Application.Repositories
 {
     public class LocationRepository: ILocationRepository
     {
-        private readonly ParkingDbContext _parkingDbContext;
-        public LocationRepository(ParkingDbContext parkingDbContext)
+        private readonly StorageDbContext _parkingDbContext;
+        public LocationRepository(StorageDbContext parkingDbContext)
         {
             _parkingDbContext = parkingDbContext;
         }
