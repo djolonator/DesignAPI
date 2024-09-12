@@ -24,6 +24,9 @@ builder.Host.UseSerilog((context, configuration) =>
 builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 
+builder.Services.AddScoped<IDesignRepository, DesignRepository>();
+builder.Services.AddScoped<IDesignService, DesignService>();
+
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
 {
