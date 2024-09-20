@@ -36,7 +36,6 @@ namespace Application.Repositories
                         DesignId = item.DesignId,
                         DesignName = item.DesignName,
                         Description = item.Description,
-                        Price = item.Price
                     };
                     diagnosisList.Add(diagnosis);
                 }
