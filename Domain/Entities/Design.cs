@@ -13,8 +13,8 @@ namespace Domain.Entities
 
         [ForeignKey("DesignCategory")]
         public int DesignCategoryId { get; set; }
+        public DesignCategory DesignCategory { get; set; }
         public string? ImgUrl { get; set; }
         public string? MockUrl { get; set; }
-
     }
 }

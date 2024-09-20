@@ -1,5 +1,4 @@
-﻿using Abp.Domain.Uow;
-using Domain.Entities;
+﻿using Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +9,7 @@ namespace Domain
         public DbSet<Location> Locations { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Design> Design { get; set; }
+        public DbSet<DesignCategory> DesignCategory { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

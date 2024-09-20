@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Repositories
 {
-    public class DesignRepository: IDesignRepository
+    public class DesignRepository : IDesignRepository
     {
         private readonly StorageDbContext _storageContext;
         private readonly ILogger _logger;
@@ -45,6 +45,28 @@ namespace Application.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in: DesignRepository.GetDesignsAsync()");
+                throw;
+            }
+        }
+
+        public async Task<List<DesignCategoryModel>> GetDesignsCategoriesAsync()
+        {
+            try
+            {
+                return await _storageContext.Design
+                   .AsNoTracking()
+                   .GroupBy(d => d.DesignCategory)
+                   .Select(g => new DesignCategoryModel
+                       {
+                           DesignCategoryId = g.Key.DesignCategoryId,
+                           DesignCategoryName = g.Key.DesignCategoryName,
+                           DesignCount = g.Count()
+                       })
+                   .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in: DesignRepository.GetDesignsCategories()");
                 throw;
             }
         }

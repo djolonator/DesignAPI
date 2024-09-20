@@ -35,5 +35,20 @@ namespace Application.Services
                 throw;
             }
         }
+
+        public async Task<Result<List<DesignCategoryModel>>> GetDesignCategoriesAsync()
+        {
+            try
+            {
+                var result = await _designRepository.GetDesignsCategoriesAsync();
+
+                return Result.Success(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in: DesignService.GetDesignCategories()");
+                throw;
+            }
+        }
     }
 }

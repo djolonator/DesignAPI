@@ -7,5 +7,6 @@ namespace Infrastracture.Interfaces.IServices
     public interface IDesignService
     {
         Task<Result<List<DesignModel>>> SearchDesigns(string term);
+        Task<Result<List<DesignCategoryModel>>> GetDesignCategoriesAsync();
     }
 }

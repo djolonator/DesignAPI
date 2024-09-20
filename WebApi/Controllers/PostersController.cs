@@ -29,5 +29,19 @@ namespace WebApi.Controllers
 
             return Ok(result.Value);
         }
+
+        [Authorize]
+        [HttpGet("designCategories")]
+        public async Task<IActionResult> DesignCategories()
+        {
+            var result = await _designService.GetDesignCategoriesAsync();
+
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+
+            return Ok(result.Value);
+        }
     }
 }
