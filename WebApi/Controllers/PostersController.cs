@@ -7,11 +7,11 @@ namespace WebApi.Controllers
 {
     [Route("api")]
     [ApiController]
-    public class DesignController : ControllerBase
+    public class PostersController : ControllerBase
     {
         private readonly IDesignService _designService;
 
-        public DesignController(IDesignService designService)
+        public PostersController(IDesignService designService)
         {
             _designService = designService;
         }

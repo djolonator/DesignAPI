@@ -7,6 +7,7 @@ using Infrastracture.Interfaces.IServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using WebApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,9 @@ builder.Services.AddScoped<ILocationService, LocationService>();
 
 builder.Services.AddScoped<IDesignRepository, DesignRepository>();
 builder.Services.AddScoped<IDesignService, DesignService>();
+
+builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
+builder.Services.AddSingleton<HttpClientSingleton>();
 
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
