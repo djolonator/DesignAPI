@@ -1,5 +1,6 @@
 ﻿
 using Domain;
+using Domain.Entities;
 using Infrastracture.Interfaces.IRepositories;
 using Infrastracture.Models;
 using Microsoft.EntityFrameworkCore;
@@ -18,29 +19,17 @@ namespace Application.Repositories
             _logger = logger;
         }
 
-        public async Task<List<DesignModel>> GetDesignsAsync(string term)
+        public async Task<List<Design>> GetDesignsAsync(string term)
         {
             try
             {
-                var diagnosisList = new List<DesignModel>();
-
                 var designes = await _storageContext
                     .Design
+                    .AsNoTracking()
                     .Where(x => x.DesignName.Contains(term) || x.Description.Contains(term))
                     .ToListAsync();
 
-                foreach (var item in designes)
-                {
-                    var diagnosis = new DesignModel
-                    {
-                        DesignId = item.DesignId,
-                        DesignName = item.DesignName,
-                        Description = item.Description,
-                    };
-                    diagnosisList.Add(diagnosis);
-                }
-
-                return diagnosisList;
+                return designes;
             }
             catch (Exception ex)
             {
@@ -49,7 +38,7 @@ namespace Application.Repositories
             }
         }
 
-        public async Task<List<DesignCategoryModel>> GetDesignsCategoriesAsync()
+        public async Task<List<DesignCategoryModel>> GetDesignCategoriesAsync()
         {
             try
             {
@@ -67,6 +56,24 @@ namespace Application.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in: DesignRepository.GetDesignsCategories()");
+                throw;
+            }
+        }
+
+        public async Task<List<Design>> GetDesignsByCategoryIdAsync(int categoryId, int pageSize, int page)
+        {
+            try
+            {
+                return await _storageContext.Design
+                   .AsNoTracking()
+                   .Where(d => d.DesignCategoryId == categoryId)
+                   .Skip(pageSize*page)
+                   .Take(pageSize)
+                   .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in: DesignRepository.GetDesignsByCategoryIdAsync()");
                 throw;
             }
         }

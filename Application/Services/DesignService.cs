@@ -24,10 +24,22 @@ namespace Application.Services
         {
             try
             {
+                var designModels = new List<DesignModel>();
                 var termNoComma = term.Replace(".", string.Empty);
                 var result = await _designRepository.GetDesignsAsync(termNoComma);
 
-                return Result.Success(result);
+                foreach (var item in result)
+                {
+                    var design = new DesignModel
+                    {
+                        DesignId = item.DesignId,
+                        DesignName = item.DesignName,
+                        Description = item.Description,
+                    };
+                    designModels.Add(design);
+                }
+
+                return Result.Success(designModels);
             }
             catch (Exception ex)
             {
@@ -40,7 +52,7 @@ namespace Application.Services
         {
             try
             {
-                var result = await _designRepository.GetDesignsCategoriesAsync();
+                var result = await _designRepository.GetDesignCategoriesAsync();
 
                 return Result.Success(result);
             }
@@ -49,6 +61,35 @@ namespace Application.Services
                 _logger.LogError(ex, "Error in: DesignService.GetDesignCategories()");
                 throw;
             }
+        }
+
+        public async Task<Result<List<DesignModel>>> GetGesignsByCategoryIdPaginated(int categoryId, int pageSize, int page)
+        {
+            try
+            {
+                var result = await _designRepository.GetDesignsByCategoryIdAsync(categoryId, pageSize, page);
+                var designModels = new List<DesignModel>();
+                foreach (var item in result)
+                {
+                    var design = new DesignModel
+                    {
+                        DesignId = item.DesignId,
+                        DesignName = item.DesignName,
+                        Description = item.Description,
+                        ImgUrl = item.ImgUrl,
+                        MockUrl = item.MockUrl,
+                    };
+                    designModels.Add(design);
+                }
+
+                return Result.Success(designModels);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in: DesignService.GetGesignsByCategoryIdPaginated()");
+                throw;
+            }
+            
         }
     }
 }

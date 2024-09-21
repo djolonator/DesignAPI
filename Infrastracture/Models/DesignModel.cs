@@ -1,5 +1,4 @@
 ﻿
-
 namespace Infrastracture.Models
 {
     public class DesignModel
@@ -7,7 +6,9 @@ namespace Infrastracture.Models
         public int DesignId { get; set; }
         public string DesignName { get; set; }
         public string Description { get; set; }
-        public double Price { get; set; }
-        public bool IsAvailable { get; set; }
+        public int DesignCategoryId { get; set; }
+        public string? ImgUrl { get; set; }
+        public string? MockUrl { get; set; }
+
     }
 }
