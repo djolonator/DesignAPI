@@ -48,10 +48,24 @@ namespace WebApi.Controllers
 
         //[Authorize]
         [HttpGet("designsByCategory/{categoryId}")]
-        public async Task<IActionResult> DesignsByCategory(int categoryId, [FromQuery] int page)
+        public async Task<IActionResult> DesignsByCategory([FromRoute]int categoryId, [FromQuery] int page)
         {
             int pageSize = 5;
             var result = await _designService.GetGesignsByCategoryIdPaginated(categoryId, pageSize, page);
+
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+
+            return Ok(result.Value);
+        }
+
+        //[Authorize]
+        [HttpGet("design/{designId}")]
+        public async Task<IActionResult> DesignsByCategory([FromRoute] int designId)
+        {
+            var result = await _designService.GetDesignById(designId);
 
             if (result.IsFailure)
             {

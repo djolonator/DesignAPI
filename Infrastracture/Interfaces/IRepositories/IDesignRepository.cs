@@ -10,5 +10,6 @@ namespace Infrastracture.Interfaces.IRepositories
         Task<List<Design>> GetDesignsAsync(string term);
         Task<List<DesignCategoryModel>> GetDesignCategoriesAsync();
         Task<List<Design>> GetDesignsByCategoryIdAsync(int categoryId, int pageSize, int page);
+        Task<Design?> GetDesignByIdc(int designId);
     }
 }

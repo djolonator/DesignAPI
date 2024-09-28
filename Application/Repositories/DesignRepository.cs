@@ -77,5 +77,18 @@ namespace Application.Repositories
                 throw;
             }
         }
+
+        public async Task<Design?> GetDesignByIdc(int designId)
+        {
+            try
+            {
+                return await _storageContext.Design.FirstOrDefaultAsync(d => d.DesignId == designId);  
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in: DesignRepository.GetDesignByIdc()");
+                throw;
+            }
+        }
     }
 }
