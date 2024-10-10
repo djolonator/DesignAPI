@@ -99,9 +99,7 @@ namespace Application.Services
 
                 if (result != null)
                 {
-                    var designModel = new DesignModel();
-
-                    var design = new DesignModel
+                    var designModel = new DesignModel
                     {
                         DesignId = result.DesignId,
                         DesignName = result.DesignName,
