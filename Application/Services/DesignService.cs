@@ -5,6 +5,7 @@ using Infrastracture.Interfaces.IRepositories;
 using Infrastracture.Interfaces.IServices;
 using Infrastracture.Models;
 using Infrastructure.Abstractions;
+using Infrastructure.Abstractions.Errors;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Services
@@ -39,7 +40,7 @@ namespace Application.Services
                     designModels.Add(design);
                 }
 
-                return Result.Success(designModels);
+                return Result<List<DesignModel>>.Success(designModels);
             }
             catch (Exception ex)
             {
@@ -54,7 +55,7 @@ namespace Application.Services
             {
                 var result = await _designRepository.GetDesignCategoriesAsync();
 
-                return Result.Success(result);
+                return Result<List<DesignCategoryModel>>.Success(result);
             }
             catch (Exception ex)
             {
@@ -82,14 +83,47 @@ namespace Application.Services
                     designModels.Add(design);
                 }
 
-                return Result.Success(designModels);
+                return Result<List<DesignModel>>.Success(designModels);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in: DesignService.GetGesignsByCategoryIdPaginated()");
                 throw;
             }
-            
+        }
+
+        public async Task<Result<DesignModel>> GetDesignByIdAsync(int designId)
+        {
+            try
+            {
+                var result = await _designRepository.GetDesignByIdAsync(designId);
+
+                if (result != null)
+                {
+                    var designModel = new DesignModel();
+
+                    var design = new DesignModel
+                    {
+                        DesignId = result.DesignId,
+                        DesignName = result.DesignName,
+                        Description = result.Description,
+                        ImgUrl = result.ImgUrl,
+                        MockUrl = result.MockUrl,
+                    };
+
+                    return Result<DesignModel>.Success(designModel);
+                }
+                else
+                {
+                    return Result<DesignModel>.Failure(new Error("sa"));
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in: DesignService.GetGesignsByCategoryIdPaginated()");
+                throw;
+            }
         }
     }
 }

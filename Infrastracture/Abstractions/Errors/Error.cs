@@ -1,6 +1,10 @@
 ﻿namespace Infrastructure.Abstractions.Errors;
-public record Error(string Code, string Name)
+public class Error
 {
-    public readonly static Error None = new(string.Empty, string.Empty);
-    public readonly static Error NullValue = new("Error.NullValue", "Null value was provided");
+    public Error(string message)
+    {
+        Message = message;
+    }
+
+    public string Message { get; }
 }

@@ -24,7 +24,7 @@ namespace WebApi.Controllers
         {
             var result = await _designService.SearchDesigns(term);
 
-            if (result.IsFailure)
+            if (!result.IsSuccess)
             {
                 return BadRequest(result.Error);
             }
@@ -33,12 +33,26 @@ namespace WebApi.Controllers
         }
 
         //[Authorize]
-        [HttpGet("designCategories")]
-        public async Task<IActionResult> DesignCategories()
+        [HttpGet("categories")]
+        public async Task<IActionResult> Categories()
         {
             var result = await _designService.GetDesignCategoriesAsync();
 
-            if (result.IsFailure)
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Error);
+            }
+
+            return Ok(result.Value);
+        }
+
+        //[Authorize]
+        [HttpGet("design/{designId}")]
+        public async Task<IActionResult> DesignsByCategory(int designId)
+        {
+            var result = await _designService.GetDesignByIdAsync(designId);
+
+            if (!result.IsSuccess)
             {
                 return BadRequest(result.Error);
             }
@@ -53,7 +67,7 @@ namespace WebApi.Controllers
             int pageSize = 5;
             var result = await _designService.GetGesignsByCategoryIdPaginated(categoryId, pageSize, page);
 
-            if (result.IsFailure)
+            if (!result.IsSuccess)
             {
                 return BadRequest(result.Error);
             }

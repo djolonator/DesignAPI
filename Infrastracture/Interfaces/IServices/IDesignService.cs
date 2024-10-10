@@ -8,6 +8,7 @@ namespace Infrastracture.Interfaces.IServices
     {
         Task<Result<List<DesignModel>>> SearchDesigns(string term);
         Task<Result<List<DesignCategoryModel>>> GetDesignCategoriesAsync();
-        Task<Result<List<DesignModel>>> GetGesignsByCategoryIdPaginated(int categoryId, int pageSize, int page);
+        Task<Result<List<DesignModel>>> GetGesignsByCategoryIdPaginated(int categoryId, int pageSize, int page)
+        Task<Result<DesignModel>> GetDesignByIdAsync(int designId);
     }
 }
