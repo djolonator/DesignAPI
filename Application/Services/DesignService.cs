@@ -124,28 +124,5 @@ namespace Application.Services
                 throw;
             }
         }
-
-        public async Task<Result<DesignModel>> GetDesignById(int designId)
-        {
-            try
-            {
-                var result = await _designRepository.GetDesignByIdc(designId);
-                var designModel = new DesignModel
-                {
-                    DesignId = result.DesignId,
-                    DesignName = result.DesignName,
-                    ImgUrl = result.ImgUrl,
-                    MockUrl = result.MockUrl,
-                };
-
-                return Result.Success(designModel);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in: DesignService.GetDesignById()");
-                throw;
-            }
-
-        }
     }
 }
