@@ -48,7 +48,7 @@ namespace WebApi.Controllers
 
         //[Authorize]
         [HttpGet("design/{designId}")]
-        public async Task<IActionResult> DesignsByCategory(int designId)
+        public async Task<IActionResult> DesignById(int designId)
         {
             var result = await _designService.GetDesignByIdAsync(designId);
 
