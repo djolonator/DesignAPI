@@ -24,12 +24,9 @@ namespace WebApi.Controllers
         {
             var result = await _designService.SearchDesigns(term);
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result.Error);
-            }
-
-            return Ok(result.Value);
+            return result.Map<IActionResult>(
+                onSuccess: result => Ok(result),
+                onFailure: error => BadRequest(error));
         }
 
         //[Authorize]
@@ -38,12 +35,9 @@ namespace WebApi.Controllers
         {
             var result = await _designService.GetDesignCategoriesAsync();
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result.Error);
-            }
-
-            return Ok(result.Value);
+            return result.Map<IActionResult>(
+                onSuccess: result => Ok(result),
+                onFailure: error => BadRequest(error));
         }
 
         //[Authorize]
@@ -52,12 +46,9 @@ namespace WebApi.Controllers
         {
             var result = await _designService.GetDesignByIdAsync(designId);
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result.Error);
-            }
-
-            return Ok(result.Value);
+            return result.Map<IActionResult>(
+                onSuccess: result => Ok(result),
+                onFailure: error => BadRequest(error));
         }
 
         //[Authorize]
@@ -67,13 +58,9 @@ namespace WebApi.Controllers
             int pageSize = 5;
             var result = await _designService.GetGesignsByCategoryIdPaginated(categoryId, pageSize, page);
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result.Error);
-            }
-
-            return Ok(result.Value);
+            return result.Map<IActionResult>(
+                onSuccess: result => Ok(result),
+                onFailure: error => BadRequest(error));
         }
-
     }
 }
