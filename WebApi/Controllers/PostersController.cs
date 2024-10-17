@@ -9,11 +9,13 @@ namespace WebApi.Controllers
     [EnableCors("AllowLocalhost3000")]
     public class PostersController : ControllerBase
     {
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IDesignService _designService;
 
-        public PostersController(IDesignService designService)
+        public PostersController(IDesignService designService, IHttpClientFactory httpClientFactory)
         {
             _designService = designService;
+            _httpClientFactory = httpClientFactory;
         }
 
         //[Authorize]
@@ -59,6 +61,16 @@ namespace WebApi.Controllers
             return result.Map<IActionResult>(
                 onSuccess: result => Ok(result),
                 onFailure: error => BadRequest(error));
+        }
+
+        //[Authorize]
+        [HttpGet]
+        public async Task<ActionResult> Get()
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri("http://api.github.com");
+            string result = await client.GetStringAsync("/");
+            return Ok(result);
         }
     }
 }
