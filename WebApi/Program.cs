@@ -49,6 +49,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddHttpClient();
+builder.Services.AddHttpClient("printfull", c =>
+{
+    c.BaseAddress = new Uri("https://api.printful.com/");
+    c.DefaultRequestHeaders.Add("Accept", "application/json");
+});
 builder.Services.AddAuthorization();
 
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()

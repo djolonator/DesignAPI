@@ -67,8 +67,7 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<ActionResult> Get()
         {
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri("http://api.github.com");
+            var client = _httpClientFactory.CreateClient("printfull");
             string result = await client.GetStringAsync("/");
             return Ok(result);
         }
