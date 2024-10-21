@@ -29,7 +29,6 @@ builder.Services.AddScoped<IDesignRepository, DesignRepository>();
 builder.Services.AddScoped<IDesignService, DesignService>();
 
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
-builder.Services.AddSingleton<HttpClientSingleton>();
 
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
