@@ -1,4 +1,5 @@
 ﻿using Infrastracture.Interfaces.IServices;
+using Infrastracture.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -64,8 +65,8 @@ namespace WebApi.Controllers
         }
 
         //[Authorize]
-        [HttpGet]
-        public async Task<ActionResult> Get()
+        [HttpPost("placeOrderToPrintfull")]
+        public async Task<ActionResult> PlaceOrder([FromBody] OrderModelClientRequest order)
         {
             var client = _httpClientFactory.CreateClient("printfull");
             string result = await client.GetStringAsync("/");
