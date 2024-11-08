@@ -6,10 +6,12 @@ namespace Domain
 {
     public class StorageDbContext : IdentityDbContext, IUnitOfWork
     {
-        public DbSet<Location> Locations { get; set; }
-        public DbSet<User> Users { get; set; }
         public DbSet<Design> Design { get; set; }
         public DbSet<DesignCategory> DesignCategory { get; set; }
+        public DbSet<Order> Order { get; set; }
+        public DbSet<OrderItem> OrderItem { get; set; }
+        public DbSet<Product> Product { get; set; }
+       
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

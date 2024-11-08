@@ -22,8 +22,6 @@ builder.Host.UseSerilog((context, configuration) =>
 //    AddApplication();
 
 //Za sada neka ga ovde
-builder.Services.AddScoped<ILocationRepository, LocationRepository>();
-builder.Services.AddScoped<ILocationService, LocationService>();
 
 builder.Services.AddScoped<IDesignRepository, DesignRepository>();
 builder.Services.AddScoped<IDesignService, DesignService>();
@@ -42,7 +40,7 @@ builder.Services.AddCors(options =>
         });
 });
 
-builder.Services.AddAutoMapper(typeof(ParkingMapper));
+builder.Services.AddAutoMapper(typeof(PostersMapper));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

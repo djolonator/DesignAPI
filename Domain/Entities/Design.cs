@@ -16,5 +16,8 @@ namespace Domain.Entities
         public DesignCategory DesignCategory { get; set; }
         public string? ImgUrl { get; set; }
         public string? MockUrl { get; set; }
+        public string? ImgForPrintUrl { get; set; }
+        public List<OrderItem> OrderItems { get; set; }
+
     }
 }
