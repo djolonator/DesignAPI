@@ -1,13 +1,18 @@
 using Application;
 using Application.Repositories;
 using Application.Services;
+using Application.Validations;
 using Domain;
+using FluentValidation;
 using Infrastracture.Interfaces.IRepositories;
 using Infrastracture.Interfaces.IServices;
+using Infrastracture.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using WebApi;
+using System;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,14 +22,19 @@ builder.Services.AddDbContext<StorageDbContext>(options =>
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
-//builder.Services.
-//    AddInfrastructure().
-//    AddApplication();
+builder.Services.
+    AddApplication();
 
 //Za sada neka ga ovde
 
 builder.Services.AddScoped<IDesignRepository, DesignRepository>();
 builder.Services.AddScoped<IDesignService, DesignService>();
+builder.Services.AddScoped<ICheckoutService, CheckoutService>();
+
+
+builder.Services.AddScoped<IValidator<CheckoutRequest>, CheckoutValidator>();
+builder.Services.AddScoped<IValidator<CartItem>, CartItemValidator>();
+builder.Services.AddScoped<IValidator<Recipient>, RecipientValidator>();
 
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 
@@ -50,6 +60,9 @@ builder.Services.AddHttpClient("printfull", c =>
 {
     c.BaseAddress = new Uri("https://api.printful.com/");
     c.DefaultRequestHeaders.Add("Accept", "application/json");
+    c.DefaultRequestHeaders.Add("X-PF-Store-Id", builder.Configuration.GetSection("AppSettings").GetSection("PRINTFULL_TOKEN").Value);
+    c.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", builder.Configuration.GetSection("AppSettings").GetSection("PRINTFULL_TOKEN").Value);
+
 });
 builder.Services.AddAuthorization();
 

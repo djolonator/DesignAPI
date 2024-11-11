@@ -1,7 +1,10 @@
-﻿using Infrastracture.Interfaces.IServices;
+﻿using Application.Validations;
+using FluentValidation;
+using Infrastracture.Interfaces.IServices;
 using Infrastracture.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace WebApi.Controllers
 {
@@ -10,13 +13,15 @@ namespace WebApi.Controllers
     [EnableCors("AllowLocalhost3000")]
     public class PostersController : ControllerBase
     {
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IDesignService _designService;
+        private readonly ICheckoutService _checkoutService;
+        private readonly IValidator<CheckoutRequest> _validator;
 
-        public PostersController(IDesignService designService, IHttpClientFactory httpClientFactory)
+        public PostersController(IDesignService designService, ICheckoutService checkoutService, IValidator<CheckoutRequest> validator)
         {
             _designService = designService;
-            _httpClientFactory = httpClientFactory;
+            _checkoutService = checkoutService;
+            _validator = validator;
         }
 
         //[Authorize]
@@ -64,13 +69,20 @@ namespace WebApi.Controllers
                 onFailure: error => BadRequest(error));
         }
 
+
         //[Authorize]
-        [HttpPost("placeOrderToPrintfull")]
-        public async Task<ActionResult> PlaceOrder([FromBody] OrderModelClientRequest order)
+        [HttpPost("checkout")]
+        public async Task<ActionResult> Checkout([FromBody] CheckoutRequest checkout)
         {
-            var client = _httpClientFactory.CreateClient("printfull");
-            string result = await client.GetStringAsync("/");
-            return Ok(result);
+            var result = await _validator.ValidateAsync(checkout);
+
+            if (!result.IsValid)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            await _checkoutService.HandleCheckout(checkout);
+            return Ok();
         }
     }
 }
