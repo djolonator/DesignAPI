@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Domain.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class _2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -54,7 +54,7 @@ namespace Domain.Migrations
                 name: "DesignCategory",
                 columns: table => new
                 {
-                    DesignCategoryId = table.Column<int>(type: "int", nullable: false)
+                    DesignCategoryId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DesignCategoryName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -64,30 +64,12 @@ namespace Domain.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Order",
-                columns: table => new
-                {
-                    OrderId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PrintfullOrderId = table.Column<int>(type: "int", nullable: false),
-                    ContactEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RecipientName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RecipientFullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RecipientAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RecipientCountry = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RecipientCity = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Order", x => x.OrderId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Product",
                 columns: table => new
                 {
-                    ProductId = table.Column<int>(type: "int", nullable: false)
+                    ProductId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    PrintfullId = table.Column<long>(type: "bigint", nullable: false),
                     ProductName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -202,14 +184,42 @@ namespace Domain.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Order",
+                columns: table => new
+                {
+                    OrderId = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PaypallOrderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PrintfullOrderId = table.Column<long>(type: "bigint", nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Country = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Order", x => x.OrderId);
+                    table.ForeignKey(
+                        name: "FK_Order_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Design",
                 columns: table => new
                 {
-                    DesignId = table.Column<int>(type: "int", nullable: false)
+                    DesignId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DesignName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DesignCategoryId = table.Column<int>(type: "int", nullable: false),
+                    DesignCategoryId = table.Column<long>(type: "bigint", nullable: false),
                     ImgUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MockUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ImgForPrintUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -222,39 +232,6 @@ namespace Domain.Migrations
                         column: x => x.DesignCategoryId,
                         principalTable: "DesignCategory",
                         principalColumn: "DesignCategoryId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "OrderItem",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderId = table.Column<int>(type: "int", nullable: false),
-                    DesignId = table.Column<int>(type: "int", nullable: false),
-                    ProductId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OrderItem", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_OrderItem_Design_DesignId",
-                        column: x => x.DesignId,
-                        principalTable: "Design",
-                        principalColumn: "DesignId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_OrderItem_Order_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Order",
-                        principalColumn: "OrderId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_OrderItem_Product_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Product",
-                        principalColumn: "ProductId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -303,19 +280,9 @@ namespace Domain.Migrations
                 column: "DesignCategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderItem_DesignId",
-                table: "OrderItem",
-                column: "DesignId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_OrderItem_OrderId",
-                table: "OrderItem",
-                column: "OrderId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_OrderItem_ProductId",
-                table: "OrderItem",
-                column: "ProductId");
+                name: "IX_Order_UserId",
+                table: "Order",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -337,15 +304,6 @@ namespace Domain.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "OrderItem");
-
-            migrationBuilder.DropTable(
-                name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
                 name: "Design");
 
             migrationBuilder.DropTable(
@@ -355,7 +313,13 @@ namespace Domain.Migrations
                 name: "Product");
 
             migrationBuilder.DropTable(
+                name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
                 name: "DesignCategory");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }
