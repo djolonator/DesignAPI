@@ -9,7 +9,6 @@ namespace Application.Validations
     {
         public CheckoutValidator()
         {
-            //RuleFor(checkout => checkout.Recipient).NotNull();
             RuleFor(checkout => checkout.Recipient).SetValidator(new RecipientValidator()!);
             RuleForEach(checkout => checkout.CartItems).SetValidator(new CartItemValidator());
         }

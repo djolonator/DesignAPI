@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System;
-using System.Text.Json;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,7 +30,6 @@ builder.Services.
 builder.Services.AddScoped<IDesignRepository, DesignRepository>();
 builder.Services.AddScoped<IDesignService, DesignService>();
 builder.Services.AddScoped<ICheckoutService, CheckoutService>();
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 
 builder.Services.AddScoped<IValidator<CheckoutRequest>, CheckoutValidator>();
@@ -56,12 +54,13 @@ builder.Services.AddAutoMapper(typeof(PostersMapper));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient("printfull", c =>
 {
     c.BaseAddress = new Uri("https://api.printful.com/");
     c.DefaultRequestHeaders.Add("Accept", "application/json");
-    c.DefaultRequestHeaders.Add("X-PF-Store-Id", builder.Configuration.GetSection("AppSettings").GetSection("STORE_ID").Value);
+    c.DefaultRequestHeaders.Add("X-PF-Store-Id", builder.Configuration.GetSection("AppSettings").GetSection("PRINTFULL_TOKEN").Value);
     c.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", builder.Configuration.GetSection("AppSettings").GetSection("PRINTFULL_TOKEN").Value);
 
 });

@@ -8,16 +8,14 @@ namespace Domain.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long OrderId { get; set; }
-        public string UserId { get; set; }
-        public string? PaypallOrderId { get; set; }
-        public long PrintfullOrderId { get; set; }
-        public string Phone { get; set; }
-        public string Email { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Address { get; set; }
-        public string Country { get; set; }
-        public string City { get; set; }
+        public int OrderId { get; set; }
+        public int PrintfullOrderId { get; set; }
+        public List<OrderItem> OrderItems { get; set; }
+        public string ContactEmail { get; set; }
+        public string RecipientName { get; set; }
+        public string RecipientFullName { get; set; }
+        public string RecipientAddress { get; set; }
+        public string RecipientCountry { get; set; }
+        public string RecipientCity { get; set; }
     }
 }

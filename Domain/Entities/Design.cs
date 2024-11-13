@@ -7,16 +7,17 @@ namespace Domain.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long DesignId { get; set; }
+        public int DesignId { get; set; }
         public string DesignName { get; set; }
         public string Description { get; set; }
 
         [ForeignKey("DesignCategory")]
-        public long DesignCategoryId { get; set; }
+        public int DesignCategoryId { get; set; }
         public DesignCategory DesignCategory { get; set; }
         public string? ImgUrl { get; set; }
         public string? MockUrl { get; set; }
         public string? ImgForPrintUrl { get; set; }
+        public List<OrderItem> OrderItems { get; set; }
 
     }
 }

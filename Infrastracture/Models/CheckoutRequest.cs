@@ -1,6 +1,4 @@
 ﻿
-using Newtonsoft.Json;
-
 namespace Infrastracture.Models
 {
     public class CheckoutRequest
@@ -8,35 +6,18 @@ namespace Infrastracture.Models
        public Recipient? Recipient { get; set; }
        public List<CartItem> CartItems { get; set; } = new List<CartItem>();
        public string? PaypallOrderId { get; set; }
-       public int PrintfullOrderId { get; set; }
+       public string? PrintfullOrderId { get; set; }
     }
 
-    public record Recipient
+    public class Recipient
     {
-        [JsonProperty("phone")]
         public string? Phone { get; set; }
-
-        [JsonProperty("email")]
         public string? Email { get; set; }
-
-        [JsonProperty("firstname")]
-        public string? FirstName { get; set; }
-
-        [JsonProperty("lastname")]
+        public string? Name { get; set; }
         public string? LastName { get; set; }
-
-        [JsonProperty("address")]
         public string? Address { get; set; }
-
-        [JsonProperty("country")]
         public string? Country { get; set; }
-
-        [JsonProperty("city")]
         public string? City { get; set; }
-
-        [JsonProperty("zip")]
-        public string? Zip { get; set; }
-
     }
 
     public class CartItem

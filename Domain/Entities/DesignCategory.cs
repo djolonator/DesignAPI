@@ -7,7 +7,7 @@ namespace Domain.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long DesignCategoryId { get; set; }
+        public int DesignCategoryId { get; set; }
         public string DesignCategoryName { get; set; }
         public List<Design> Designs { get; set; }
     }

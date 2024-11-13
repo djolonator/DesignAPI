@@ -13,7 +13,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
-    <PackageReference Include="PayPalServerSDK" Version="0.6.0" />
   </ItemGroup>
 
 	<ItemGroup>
