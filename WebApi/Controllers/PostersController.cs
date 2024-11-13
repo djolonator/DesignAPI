@@ -71,8 +71,8 @@ namespace WebApi.Controllers
 
 
         //[Authorize]
-        [HttpPost("checkout")]
-        public async Task<ActionResult> Checkout([FromBody] CheckoutRequest checkout)
+        [HttpPost("initiatecheckout")]
+        public async Task<ActionResult> InitiateCheckout([FromBody] CheckoutRequest checkout)
         {
             var result = await _validator.ValidateAsync(checkout);
 
@@ -81,7 +81,15 @@ namespace WebApi.Controllers
                 return BadRequest(result.Errors);
             }
 
-            await _checkoutService.HandleCheckout(checkout);
+            var response = await _checkoutService.HandleInitiateCheckout(checkout);
+            return Ok(response);
+        }
+
+        //[Authorize]
+        [HttpPost("confirmcheckout/{paypallOrderIdId}")]
+        public async Task<ActionResult> ConfirmCheckout([FromBody] CheckoutRequest checkout)
+        {
+            await _checkoutService.HandleConfirmCheckout();
             return Ok();
         }
     }

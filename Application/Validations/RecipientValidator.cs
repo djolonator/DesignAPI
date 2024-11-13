@@ -8,13 +8,13 @@ namespace Application.Validations
     {
         public RecipientValidator()
         {
-            RuleFor(recipient => recipient.Email).NotNull();
-            RuleFor(recipient => recipient.City).NotNull();
-            RuleFor(recipient => recipient.Address).NotNull();
-            RuleFor(recipient => recipient.Country).NotNull();
-            RuleFor(recipient => recipient.Name).NotNull();
-            RuleFor(recipient => recipient.LastName).NotNull();
-            RuleFor(recipient => recipient.Phone).NotNull();
+            RuleFor(recipient => recipient.Email).NotEmpty();
+            RuleFor(recipient => recipient.City).NotEmpty();
+            RuleFor(recipient => recipient.Address).NotEmpty();
+            RuleFor(recipient => recipient.Country).NotEmpty();
+            RuleFor(recipient => recipient.FirstName).NotEmpty();
+            RuleFor(recipient => recipient.LastName).NotEmpty();
+            RuleFor(recipient => recipient.Phone).NotEmpty();
         }
     }
 }

@@ -8,9 +8,8 @@ namespace Domain.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ProductId { get; set; }
-        public int PrintfullId { get; set; }
+        public long ProductId { get; set; }
+        public long PrintfullId { get; set; }
         public string ProductName { get; set; }
-        public List<OrderItem> OrderItems { get; set; }
     }
 }
