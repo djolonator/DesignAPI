@@ -92,5 +92,20 @@ namespace WebApi.Controllers
             await _checkoutService.HandleConfirmCheckout();
             return Ok();
         }
+
+        //[Authorize]
+        [HttpPost("calculateCost")]
+        public async Task<ActionResult> CalculateCost([FromBody] CheckoutRequest checkout)
+        {
+            var validationResult = await _validator.ValidateAsync(checkout);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
+
+            var result = await _checkoutService.CalculateTotalCost(checkout);
+            return Ok(result);
+        }
     }
 }

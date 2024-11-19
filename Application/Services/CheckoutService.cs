@@ -10,7 +10,10 @@ using Infrastracture.Models;
 using PaypalServerSdk.Standard.Http.Response;
 using Infrastracture.Interfaces.IRepositories;
 using System.Net.Http.Json;
-using Abp.Collections.Extensions;
+using Infrastructure.Abstractions.Errors;
+using Application.Constants;
+using Infrastructure.Abstractions;
+using System.Text.Json;
 
 
 namespace Application.Services
@@ -85,6 +88,29 @@ namespace Application.Services
             //dodaj u header orderId
         }
 
+        public async Task<Result<CostCalculation>> CalculateTotalCost(CheckoutRequest checkoutRequest)
+        {
+            var checkout = new CheckoutRequest();
+            checkout.CartItems = checkoutRequest.CartItems;
+            checkout.Recipient = checkoutRequest.Recipient;
+
+            var result = await CreatePrintfullOrder(checkoutRequest);
+
+            if (result.IsSuccess)
+            {
+                var costCalculation = new CostCalculation();
+                costCalculation.TotalCost = result.Value.Result.Costs.Total;
+                costCalculation.ItemsCost = result.Value.Result.Costs.Subtotal;
+                costCalculation.ShippingCost = result.Value.Result.Costs.Shipping;
+                return Result<CostCalculation>.Success(costCalculation);
+            }
+            else
+            {
+                return Result<CostCalculation>.Failure(new Error(result.Error.Message));
+            }
+            
+        }
+
         private async Task<ApiResponse<Order>> CreatePaypallOrder()
         {
             OrdersCreateInput ordersCreateInput = new OrdersCreateInput
@@ -147,7 +173,7 @@ namespace Application.Services
         }
 
 
-        private async Task<HttpResponseMessage> CreatePrintfullOrder(CheckoutRequest checkoutRequest)
+        private async Task<Result<PrintfullOrderResponse>> CreatePrintfullOrder(CheckoutRequest checkoutRequest)
         {
             var client = _httpClientFactory.CreateClient("printfull");
             var orderBody = await CreateOrderBodyForRequest(checkoutRequest);
@@ -155,24 +181,32 @@ namespace Application.Services
 
             try
             {
-                result = await client.PostAsJsonAsync<PrintfullOrder>("/orders", orderBody);
+                result = await client.PostAsJsonAsync<PrintfullOrderRequest>("/orders", orderBody);
+
+                if (result.IsSuccessStatusCode) 
+                {
+                    var content = await result.Content.ReadAsStringAsync();
+                    return Result<PrintfullOrderResponse>.Success(JsonSerializer.Deserialize<PrintfullOrderResponse>(content));
+                }
+                
             }
             catch (Exception ex)
             {
             }
 
-            return result;
+            return Result<PrintfullOrderResponse>.Failure(new Error("Message from response"));//error message from printfull api resposnse
         }
 
-        private async Task<PrintfullOrder> CreateOrderBodyForRequest(CheckoutRequest checkoutRequest)
+        private async Task<PrintfullOrderRequest> CreateOrderBodyForRequest(CheckoutRequest checkoutRequest)
         {
-            var orderBody = new PrintfullOrder();
+            var orderBody = new PrintfullOrderRequest();
             var recipient = new PrintfullOrderRecipient()
             {
                 Name = checkoutRequest.Recipient!.FirstName + " " + checkoutRequest.Recipient.LastName,
                 Address1 = checkoutRequest.Recipient!.Address!,
                 City = checkoutRequest.Recipient!.City!,
                 CountryCode = checkoutRequest.Recipient!.Country!,
+                CountryName = "Serbia",
                 Zip = checkoutRequest.Recipient!.Zip!,
                 Phone = checkoutRequest.Recipient!.Phone!,
                 Email = checkoutRequest.Recipient!.Email!
@@ -180,15 +214,15 @@ namespace Application.Services
 
             var items = new List<PrintfullOrderItem>();
 
-            checkoutRequest.CartItems.ForEach(async i =>
+            foreach (var i in checkoutRequest.CartItems)
             {
                 var design = await _designRepository.GetDesignByIdAsync(i.DesignId);
-                if (design != null && !design.ImgForPrintUrl.IsNullOrEmpty())
+                if (design != null && !string.IsNullOrEmpty(design.ImgForPrintUrl))
                 {
                     var item = new PrintfullOrderItem()
                     {
                         Quantity = i.Quantity,
-                        VariantId = i.ProductId,
+                        VariantId = Constants.Product.ProductVariants()[i.ProductId],
                         Files = new List<FileForPrinting>()
                     };
 
@@ -199,7 +233,7 @@ namespace Application.Services
 
                     items.Add(item);
                 }
-            });
+            }
 
             orderBody.Recipient = recipient;
             orderBody.Items = items;

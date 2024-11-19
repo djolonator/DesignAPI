@@ -1,61 +1,62 @@
 ﻿
-
-using Newtonsoft.Json;
-
+using System.Text.Json.Serialization;
 namespace Infrastracture.Models
 {
-    public class PrintfullOrder
+    public class PrintfullOrderRequest
     {
-        [JsonProperty("recipient")]
+        [JsonPropertyName("recipient")]
         public PrintfullOrderRecipient Recipient { get; set; }
 
-        [JsonProperty("items")]
+        [JsonPropertyName("items")]
         public List<PrintfullOrderItem> Items { get; set; }
     }
 
     public class PrintfullOrderRecipient
     {
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonProperty("address1")]
+        [JsonPropertyName("address1")]
         public string Address1 { get; set; }
 
-        [JsonProperty("city")]
+        [JsonPropertyName("city")]
         public string City { get; set; }
 
-        [JsonProperty("state_code")]
+        [JsonPropertyName("state_code")]
         public string StateCode { get; set; }
 
-        [JsonProperty("country_code")]
+        [JsonPropertyName("country_code")]
         public string CountryCode { get; set; }
 
-        [JsonProperty("zip")]
+        [JsonPropertyName("country_name")]
+        public string CountryName { get; set; }
+
+        [JsonPropertyName("zip")]
         public string Zip { get; set; }
 
-        [JsonProperty("phone")]
+        [JsonPropertyName("phone")]
         public string Phone { get; set; }
 
-        [JsonProperty("email")]
+        [JsonPropertyName("email")]
         public string Email { get; set; }
     
     }
 
     public class PrintfullOrderItem
     {
-        [JsonProperty("variant_id")]
+        [JsonPropertyName("variant_id")]
         public long VariantId { get; set; }
 
-        [JsonProperty("quantity")]
+        [JsonPropertyName("quantity")]
         public int Quantity { get; set; }
 
-        [JsonProperty("files")]
+        [JsonPropertyName("files")]
         public List<FileForPrinting> Files { get; set; }
     }
 
     public class FileForPrinting
     {
-        [JsonProperty("url")]
+        [JsonPropertyName("url")]
         public string Url { get; set; }
     }
 
