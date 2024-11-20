@@ -73,26 +73,11 @@ namespace WebApi.Controllers
 
 
         //[Authorize]
-        [HttpPost("initiatecheckout")]
-        public async Task<ActionResult> InitiateCheckout([FromBody] CheckoutRequest checkout)
+        [HttpPost("initiatePaypallOrder")]
+        public async Task<ActionResult> InitiatePaypallOrder()
         {
-            var result = await _validator.ValidateAsync(checkout);
-
-            if (!result.IsValid)
-            {
-                return BadRequest(result.Errors);
-            }
-
-            var response = await _checkoutService.HandleInitiateCheckout(checkout);
+            var response = await _checkoutService.HandleInitiatePaypallOrder(_userId);
             return Ok(response);
-        }
-
-        //[Authorize]
-        [HttpPost("confirmcheckout/{paypallOrderIdId}")]
-        public async Task<ActionResult> ConfirmCheckout([FromBody] CheckoutRequest checkout)
-        {
-            await _checkoutService.HandleConfirmCheckout();
-            return Ok();
         }
 
         //[Authorize]

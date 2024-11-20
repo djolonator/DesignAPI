@@ -14,6 +14,7 @@ using Infrastructure.Abstractions.Errors;
 using Application.Constants;
 using Infrastructure.Abstractions;
 using System.Text.Json;
+using Application.Helpers;
 
 
 namespace Application.Services
@@ -64,28 +65,30 @@ namespace Application.Services
             _designRepository = designRepository;
         }
 
-        public async Task<ApiResponse<Order>> HandleInitiateCheckout(CheckoutRequest checkoutRequest)
+        public async Task<Result<ApiResponse<Order>>> HandleInitiatePaypallOrder(string userId)
         {
-            //printfull order start             id
-            //paypall start                     id
-            // kreiraj order u bazi
-
-
-            var checkout = new CheckoutRequest();
-            checkout.CartItems = checkoutRequest.CartItems;
-            checkout.Recipient = checkoutRequest.Recipient;
-
-            var createPrintFullOrderResult = await CreatePrintfullOrder(checkoutRequest);
-
-            var createPaypallOrderResult = await CreatePaypallOrder();
-            if (IsPaypallOrderCreated(createPaypallOrderResult))
+            var userOrder = await _orderRepository.FindOrderByUserId(userId);
+            var errorMessage = "";
+            if (userOrder != null)
             {
-                checkout.PaypallOrderId = createPaypallOrderResult.Data.Id;
-                // kreiraj order u bazi
+                var printFullOrderResult = await GetPrintfullOrder(userOrder.PrintfullOrderId);
+                if (printFullOrderResult.IsSuccess)
+                {
+                    var printfullItemsPrice = printFullOrderResult.Value.Result.Costs.Subtotal;
+                    var shippingPrice = double.Parse(printFullOrderResult.Value.Result.Costs.Shipping);
+                    var myItemPrice = PriceCalculator.CalculatePrice(double.Parse(printfullItemsPrice));
+                    double totalPrice = myItemPrice + shippingPrice;
+                    var createPaypallOrderResult = await CreatePaypallOrder(totalPrice.ToString());
+                    if (IsPaypallOrderCreated(createPaypallOrderResult))
+                    {
+                        userOrder.PaypallOrderId = createPaypallOrderResult.Data.Id;
+                        _orderRepository.SaveChanges();
+                        return Result<ApiResponse<Order>>.Success(createPaypallOrderResult);
+                    }
+                }
             }
 
-            return createPaypallOrderResult;
-            //dodaj u header orderId
+            return Result<ApiResponse<Order>>.Failure(new Error(errorMessage));
         }
 
         public async Task<Result<CostCalculation>> CalculateTotalCost(CheckoutRequest checkoutRequest, string userId)
@@ -103,7 +106,21 @@ namespace Application.Services
                 costCalculation.ItemsCost = result.Value.Result.Costs.Subtotal;
                 costCalculation.ShippingCost = result.Value.Result.Costs.Shipping;
 
-                return Result<CostCalculation>.Success(costCalculation);
+                var orderId = await _orderRepository.CreateOrder(new Domain.Entities.Order()
+                {
+                    UserId = userId,
+                    PrintfullOrderId = result.Value.Result.Id
+                });
+
+                if (orderId > 0)
+                {
+                    return Result<CostCalculation>.Success(costCalculation);
+                }
+                else
+                {
+                    return Result<CostCalculation>.Failure(new Error("Internal server error"));
+                }
+                
             }
             else
             {
@@ -112,7 +129,7 @@ namespace Application.Services
             
         }
 
-        private async Task<ApiResponse<Order>> CreatePaypallOrder()
+        private async Task<ApiResponse<Order>> CreatePaypallOrder(string amount)
         {
             OrdersCreateInput ordersCreateInput = new OrdersCreateInput
             {
@@ -125,7 +142,7 @@ namespace Application.Services
                         {
                             Amount = new AmountWithBreakdown 
                             {
-                                CurrencyCode = "USD", MValue = "100",
+                                CurrencyCode = "USD", MValue = amount,
                             },
                         },
                     },
@@ -157,10 +174,6 @@ namespace Application.Services
             }
         }
 
-        public async Task HandleConfirmCheckout()
-        {
-            
-        }
         private async Task<dynamic> CapturePaypallOrder(string paypallOrderID)
         {
             OrdersCaptureInput ordersCaptureInput = new OrdersCaptureInput
@@ -182,7 +195,7 @@ namespace Application.Services
 
             try
             {
-                result = await client.PostAsJsonAsync<PrintfullOrderRequest>("/orders", orderBody);
+                result = await client.PostAsJsonAsync<CreatePrintfullOrderRequest>("/orders", orderBody);
 
                 if (result.IsSuccessStatusCode) 
                 {
@@ -198,9 +211,33 @@ namespace Application.Services
             return Result<PrintfullOrderResponse>.Failure(new Error("Message from response"));//error message from printfull api resposnse
         }
 
-        private async Task<PrintfullOrderRequest> CreateOrderBodyForRequest(CheckoutRequest checkoutRequest)
+        private async Task<Result<PrintfullOrderResponseGet>> GetPrintfullOrder(long orderId)
         {
-            var orderBody = new PrintfullOrderRequest();
+            var client = _httpClientFactory.CreateClient("printfull");
+            
+            var result = new HttpResponseMessage();
+
+            try
+            {
+                result = await client.GetAsync($"/orders/{orderId}");
+
+                if (result.IsSuccessStatusCode)
+                {
+                    var content = await result.Content.ReadAsStringAsync();
+                    return Result<PrintfullOrderResponseGet>.Success(JsonSerializer.Deserialize<PrintfullOrderResponseGet>(content));
+                }
+
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return Result<PrintfullOrderResponseGet>.Failure(new Error("Message from response"));//error message from printfull api resposnse
+        }
+
+        private async Task<CreatePrintfullOrderRequest> CreateOrderBodyForRequest(CheckoutRequest checkoutRequest)
+        {
+            var orderBody = new CreatePrintfullOrderRequest();
             var recipient = new PrintfullOrderRecipient()
             {
                 Name = checkoutRequest.Recipient!.FirstName + " " + checkoutRequest.Recipient.LastName,

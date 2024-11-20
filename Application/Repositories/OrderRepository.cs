@@ -19,6 +19,11 @@ namespace Application.Repositories
             _logger = logger;
         }
 
+        public void SaveChanges()
+        {
+            _storageContext.SaveChanges();
+        }
+
         public async Task<long> CreateOrder(Order order)
         {
             await _storageContext.Order.AddAsync(order);
@@ -34,6 +39,11 @@ namespace Application.Repositories
         public async Task<Order?> FindOrderByUserId(string userId)
         {
             return await _storageContext.Order.FirstOrDefaultAsync(o => o.UserId == userId);
+        }
+
+        public async Task<Order?> FindOrderByUserIdNoTracking(string userId)
+        {
+            return await _storageContext.Order.AsNoTracking().FirstOrDefaultAsync(o => o.UserId == userId);
         }
 
         public async Task DeleteOrder(string userId)

@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 namespace Infrastracture.Models
 {
-    public class PrintfullOrderRequest
+    public class CreatePrintfullOrderRequest
     {
         [JsonPropertyName("recipient")]
         public PrintfullOrderRecipient Recipient { get; set; }
