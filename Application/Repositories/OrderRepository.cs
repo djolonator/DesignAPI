@@ -30,5 +30,20 @@ namespace Application.Repositories
         {
             return await _storageContext.Order.FirstOrDefaultAsync(o => o.OrderId == id);
         }
+
+        public async Task<Order?> FindOrderByUserId(string userId)
+        {
+            return await _storageContext.Order.FirstOrDefaultAsync(o => o.UserId == userId);
+        }
+
+        public async Task DeleteOrder(string userId)
+        {
+            var order = await FindOrderByUserId(userId);
+            if (order != null) 
+            {
+                _storageContext.Order.Remove(order);
+                _storageContext.SaveChanges();
+            }
+        }
     }
 }

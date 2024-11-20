@@ -88,7 +88,7 @@ namespace Application.Services
             //dodaj u header orderId
         }
 
-        public async Task<Result<CostCalculation>> CalculateTotalCost(CheckoutRequest checkoutRequest)
+        public async Task<Result<CostCalculation>> CalculateTotalCost(CheckoutRequest checkoutRequest, string userId)
         {
             var checkout = new CheckoutRequest();
             checkout.CartItems = checkoutRequest.CartItems;
@@ -102,6 +102,7 @@ namespace Application.Services
                 costCalculation.TotalCost = result.Value.Result.Costs.Total;
                 costCalculation.ItemsCost = result.Value.Result.Costs.Subtotal;
                 costCalculation.ShippingCost = result.Value.Result.Costs.Shipping;
+
                 return Result<CostCalculation>.Success(costCalculation);
             }
             else

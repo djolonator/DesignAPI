@@ -16,12 +16,14 @@ namespace WebApi.Controllers
         private readonly IDesignService _designService;
         private readonly ICheckoutService _checkoutService;
         private readonly IValidator<CheckoutRequest> _validator;
+        private readonly string _userId;
 
         public PostersController(IDesignService designService, ICheckoutService checkoutService, IValidator<CheckoutRequest> validator)
         {
             _designService = designService;
             _checkoutService = checkoutService;
             _validator = validator;
+            _userId = "79caf87d-631f-456a-a1b9-0289b2b14b82";
         }
 
         //[Authorize]
@@ -104,7 +106,7 @@ namespace WebApi.Controllers
                 return BadRequest(validationResult.Errors);
             }
 
-            var result = await _checkoutService.CalculateTotalCost(checkout);
+            var result = await _checkoutService.CalculateTotalCost(checkout, _userId);
             return Ok(result);
         }
     }

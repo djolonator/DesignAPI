@@ -8,5 +8,7 @@ namespace Infrastracture.Interfaces.IRepositories
     {
         public Task<long> CreateOrder(Order order);
         public Task<Order?> FindOrderById(int id);
+        Task DeleteOrder(string userId);
+        Task<Order?> FindOrderByUserId(string userId);
     }
 }

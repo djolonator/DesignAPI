@@ -10,6 +10,6 @@ namespace Infrastracture.Interfaces.IServices
     {
         Task<ApiResponse<Order>> HandleInitiateCheckout(CheckoutRequest checkoutRequest);
         Task HandleConfirmCheckout();
-        Task<Result<CostCalculation>> CalculateTotalCost(CheckoutRequest checkoutRequest);
+        Task<Result<CostCalculation>> CalculateTotalCost(CheckoutRequest checkoutRequest, string userId);
     }
 }
