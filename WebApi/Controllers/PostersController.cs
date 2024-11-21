@@ -1,10 +1,9 @@
-﻿using Application.Validations;
-using FluentValidation;
+﻿using FluentValidation;
 using Infrastracture.Interfaces.IServices;
 using Infrastracture.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System;
 
 namespace WebApi.Controllers
 {
@@ -16,17 +15,15 @@ namespace WebApi.Controllers
         private readonly IDesignService _designService;
         private readonly ICheckoutService _checkoutService;
         private readonly IValidator<CheckoutRequest> _validator;
-        private readonly string _userId;
 
         public PostersController(IDesignService designService, ICheckoutService checkoutService, IValidator<CheckoutRequest> validator)
         {
             _designService = designService;
             _checkoutService = checkoutService;
             _validator = validator;
-            _userId = "79caf87d-631f-456a-a1b9-0289b2b14b82";
         }
 
-        //[Authorize]
+       // [Authorize]
         [HttpGet("designsSearch")]
         public async Task<IActionResult> DesignsSearch([FromQuery] string term)
         {
@@ -37,10 +34,11 @@ namespace WebApi.Controllers
                 onFailure: error => BadRequest(error));
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("categories")]
         public async Task<IActionResult> Categories()
         {
+            
             var result = await _designService.GetDesignCategoriesAsync();
 
             return result.Map<IActionResult>(
@@ -76,8 +74,17 @@ namespace WebApi.Controllers
         [HttpPost("initiatePaypallOrder")]
         public async Task<ActionResult> InitiatePaypallOrder()
         {
-            var response = await _checkoutService.HandleInitiatePaypallOrder(_userId);
-            return Ok(response);
+            var userId = GetLoggedInUserId();
+            var result = await _checkoutService.HandleInitiatePaypallOrder(userId);
+            return Ok(result);
+        }
+
+        //[Authorize]
+        [HttpPost("capturePaypallOrder/{paypallOrderId}")]
+        public async Task<ActionResult> CapturePaypallOrder([FromRoute] string paypallOrderId)
+        {
+            var result = await _checkoutService.HandleCapturePaypallOrder(paypallOrderId);
+            return Ok(result);
         }
 
         //[Authorize]
@@ -91,8 +98,15 @@ namespace WebApi.Controllers
                 return BadRequest(validationResult.Errors);
             }
 
-            var result = await _checkoutService.CalculateTotalCost(checkout, _userId);
+            var userId = GetLoggedInUserId();
+            var result = await _checkoutService.CalculateTotalCost(checkout, userId);
             return Ok(result);
+        }
+
+        private string GetLoggedInUserId()
+        {
+            var userClaims = User.Claims.ToList();
+            return User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")!.Value;
         }
     }
 }

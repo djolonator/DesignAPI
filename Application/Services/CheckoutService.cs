@@ -79,7 +79,7 @@ namespace Application.Services
                     var myItemPrice = PriceCalculator.CalculatePrice(double.Parse(printfullItemsPrice));
                     double totalPrice = myItemPrice + shippingPrice;
                     var createPaypallOrderResult = await CreatePaypallOrder(totalPrice.ToString());
-                    if (IsPaypallOrderCreated(createPaypallOrderResult))
+                    if (IsPaypallOrderRequestSuccess(createPaypallOrderResult))
                     {
                         userOrder.PaypallOrderId = createPaypallOrderResult.Data.Id;
                         _orderRepository.SaveChanges();
@@ -89,6 +89,13 @@ namespace Application.Services
             }
 
             return Result<ApiResponse<Order>>.Failure(new Error(errorMessage));
+        }
+
+        public async Task<ApiResponse<Order>> HandleCapturePaypallOrder(string paypallOrderId)
+        {
+            var capturePaypallRequestResult = await CapturePaypallOrder(paypallOrderId);
+
+            return capturePaypallRequestResult;
         }
 
         public async Task<Result<CostCalculation>> CalculateTotalCost(CheckoutRequest checkoutRequest, string userId)
@@ -162,7 +169,7 @@ namespace Application.Services
             return new ApiResponse<Order>(500,new Dictionary<string, string>(), new Order());
         }
 
-        private bool IsPaypallOrderCreated(ApiResponse<Order> order)
+        private bool IsPaypallOrderRequestSuccess(ApiResponse<Order> order)
         {
             if (order.StatusCode is 201)
             {

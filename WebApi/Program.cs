@@ -9,10 +9,8 @@ using Infrastracture.Interfaces.IServices;
 using Infrastracture.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using System;
-using System.Text.Json;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
