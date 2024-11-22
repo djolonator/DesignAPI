@@ -94,7 +94,7 @@ namespace Application.Services
         public async Task<ApiResponse<Order>> HandleCapturePaypallOrder(string paypallOrderId)
         {
             var capturePaypallRequestResult = await CapturePaypallOrder(paypallOrderId);
-
+            //confirm printfull order is paypall is captured
             return capturePaypallRequestResult;
         }
 

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
 {
-    [Route("api")]
+    //[Route("api")]
     [ApiController]
     [EnableCors("AllowLocalhost3000")]
     public class PostersController : ControllerBase
@@ -23,7 +23,7 @@ namespace WebApi.Controllers
             _validator = validator;
         }
 
-       // [Authorize]
+        //[Authorize]
         [HttpGet("designsSearch")]
         public async Task<IActionResult> DesignsSearch([FromQuery] string term)
         {
@@ -34,7 +34,7 @@ namespace WebApi.Controllers
                 onFailure: error => BadRequest(error));
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet("categories")]
         public async Task<IActionResult> Categories()
         {
@@ -68,7 +68,6 @@ namespace WebApi.Controllers
                 onSuccess: result => Ok(result),
                 onFailure: error => BadRequest(error));
         }
-
 
         //[Authorize]
         [HttpPost("initiatePaypallOrder")]
@@ -106,7 +105,8 @@ namespace WebApi.Controllers
         private string GetLoggedInUserId()
         {
             var userClaims = User.Claims.ToList();
-            return User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")!.Value;
+            //return User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")!.Value;
+            return "79caf87d-631f-456a-a1b9-0289b2b14b82";
         }
     }
 }
