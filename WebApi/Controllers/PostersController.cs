@@ -34,7 +34,7 @@ namespace WebApi.Controllers
                 onFailure: error => BadRequest(error));
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("categories")]
         public async Task<IActionResult> Categories()
         {
@@ -57,7 +57,7 @@ namespace WebApi.Controllers
                 onFailure: error => BadRequest(error));
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("designsByCategory/{categoryId}")]
         public async Task<IActionResult> DesignsByCategory([FromRoute]int categoryId, [FromQuery] int page)
         {
