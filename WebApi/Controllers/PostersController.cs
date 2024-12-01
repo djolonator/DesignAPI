@@ -23,7 +23,7 @@ namespace WebApi.Controllers
             _validator = validator;
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("designsSearch")]
         public async Task<IActionResult> DesignsSearch([FromQuery] string term)
         {
@@ -46,7 +46,7 @@ namespace WebApi.Controllers
                 onFailure: error => BadRequest(error));
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("design/{designId}")]
         public async Task<IActionResult> DesignById([FromRoute] int designId)
         {
@@ -69,7 +69,7 @@ namespace WebApi.Controllers
                 onFailure: error => BadRequest(error));
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost("initiatePaypallOrder")]
         public async Task<ActionResult> InitiatePaypallOrder()
         {
@@ -78,7 +78,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost("capturePaypallOrder/{paypallOrderId}")]
         public async Task<ActionResult> CapturePaypallOrder([FromRoute] string paypallOrderId)
         {
@@ -86,7 +86,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost("calculateCost")]
         public async Task<ActionResult> CalculateCost([FromBody] CheckoutRequest checkout)
         {
@@ -105,8 +105,7 @@ namespace WebApi.Controllers
         private string GetLoggedInUserId()
         {
             var userClaims = User.Claims.ToList();
-            //return User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")!.Value;
-            return "79caf87d-631f-456a-a1b9-0289b2b14b82";
+            return User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")!.Value;
         }
     }
 }

@@ -203,19 +203,22 @@ namespace Application.Services
             try
             {
                 result = await client.PostAsJsonAsync<CreatePrintfullOrderRequest>("/orders", orderBody);
+                var content = await result.Content.ReadAsStringAsync();
 
                 if (result.IsSuccessStatusCode) 
                 {
-                    var content = await result.Content.ReadAsStringAsync();
                     return Result<PrintfullOrderResponse>.Success(JsonSerializer.Deserialize<PrintfullOrderResponse>(content));
                 }
                 
             }
             catch (Exception ex)
             {
+                //error message from printfull api resposnse for logs
             }
 
-            return Result<PrintfullOrderResponse>.Failure(new Error("Message from response"));//error message from printfull api resposnse
+            return Result<PrintfullOrderResponse>.Failure(new Error("Could not process order right now"));
+
+            
         }
 
         private async Task<Result<PrintfullOrderResponseGet>> GetPrintfullOrder(long orderId)
