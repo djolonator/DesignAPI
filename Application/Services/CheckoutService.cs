@@ -125,6 +125,7 @@ namespace Application.Services
                 }
                 else
                 {
+                    CancelPrintfullOrder(result.Value.Result.Id);
                     return Result<CostCalculation>.Failure(new Error("Internal server error"));
                 }
                 
@@ -217,8 +218,22 @@ namespace Application.Services
             }
 
             return Result<PrintfullOrderResponse>.Failure(new Error("Could not process order right now"));
+        }
 
-            
+        private void CancelPrintfullOrder(long orderId)
+        {
+            var client = _httpClientFactory.CreateClient("printfull");
+            Task.Run(async () =>
+            {
+                try
+                {
+                    var result = await client.DeleteAsync($"/orders/{orderId}");
+                }
+                catch (Exception ex)
+                {
+                    
+                }
+            });
         }
 
         private async Task<Result<PrintfullOrderResponseGet>> GetPrintfullOrder(long orderId)
