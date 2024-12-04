@@ -11,10 +11,10 @@ using PaypalServerSdk.Standard.Http.Response;
 using Infrastracture.Interfaces.IRepositories;
 using System.Net.Http.Json;
 using Infrastructure.Abstractions.Errors;
-using Application.Constants;
 using Infrastructure.Abstractions;
 using System.Text.Json;
 using Application.Helpers;
+using Infrastracture.Abstractions;
 
 
 namespace Application.Services
@@ -91,11 +91,29 @@ namespace Application.Services
             return Result<ApiResponse<Order>>.Failure(new Error(errorMessage));
         }
 
-        public async Task<ApiResponse<Order>> HandleCapturePaypallOrder(string paypallOrderId)
+        public async Task<Result<Generic>> HandleCapturePaypallOrder(string paypallOrderId, string userId)
         {
             var capturePaypallRequestResult = await CapturePaypallOrder(paypallOrderId);
-            //confirm printfull order is paypall is captured
-            return capturePaypallRequestResult;
+            if (capturePaypallRequestResult.IsSuccess)
+            {
+                var userOrder = _orderRepository.FindOrderByUserIdNoTracking(userId);
+
+                if (userOrder != null) 
+                { 
+                    //confirm order
+                    //return success
+                }
+                else
+                {
+                    //return fail
+                }
+            }
+            else
+            {
+                return Result<Generic>.Failure(new Error("Paypall failed")); // read capturePaypallRequestResult for details
+            }
+
+            return Result<Generic>.Success(new Generic() { Value = "Success"}); 
         }
 
         public async Task<Result<CostCalculation>> CalculateTotalCost(CheckoutRequest checkoutRequest, string userId)

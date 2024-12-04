@@ -82,7 +82,8 @@ namespace WebApi.Controllers
         [HttpPost("capturePaypallOrder/{paypallOrderId}")]
         public async Task<ActionResult> CapturePaypallOrder([FromRoute] string paypallOrderId)
         {
-            var result = await _checkoutService.HandleCapturePaypallOrder(paypallOrderId);
+            var userId = GetLoggedInUserId();
+            var result = await _checkoutService.HandleCapturePaypallOrder(paypallOrderId, userId);
             return Ok(result);
         }
 
