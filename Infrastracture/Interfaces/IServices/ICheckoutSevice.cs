@@ -10,7 +10,7 @@ namespace Infrastracture.Interfaces.IServices
     public interface ICheckoutService
     {
         Task<Result<ApiResponse<Order>>> HandleInitiatePaypallOrder(string userId);
-        Task<Result<CostCalculation>> CalculateTotalCost(CheckoutRequest checkoutRequest, string userId);
+        Task<Result<CostCalculation>> EstimateTotalCost(CheckoutRequest checkoutRequest, string userId);
         Task<Result<Generic>> HandleCapturePaypallOrder(string paypallOrderId, string userId);
     }
 }

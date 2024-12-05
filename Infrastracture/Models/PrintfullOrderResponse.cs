@@ -78,7 +78,7 @@ namespace Infrastracture.Models
         public string DashboardUrl { get; set; }
 
         [JsonPropertyName("items")]
-        public List<OrderItem> Items { get; set; }
+        public List<OrderItemResponse> Items { get; set; }
 
         [JsonPropertyName("branding_items")]
         public List<object> BrandingItems { get; set; }
@@ -174,7 +174,7 @@ namespace Infrastracture.Models
         public double Total { get; set; }
     }
 
-    public class OrderItem
+    public class OrderItemResponse
     {
         [JsonPropertyName("id")]
         public long Id { get; set; }

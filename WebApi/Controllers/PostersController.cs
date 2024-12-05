@@ -88,8 +88,8 @@ namespace WebApi.Controllers
         }
 
         [Authorize]
-        [HttpPost("calculateCost")]
-        public async Task<ActionResult> CalculateCost([FromBody] CheckoutRequest checkout)
+        [HttpPost("estimateTotalCost")]
+        public async Task<ActionResult> EstimateTotalCost([FromBody] CheckoutRequest checkout)
         {
             var validationResult = await _validator.ValidateAsync(checkout);
 
@@ -97,9 +97,8 @@ namespace WebApi.Controllers
             {
                 return BadRequest(validationResult.Errors);
             }
-
             var userId = GetLoggedInUserId();
-            var result = await _checkoutService.CalculateTotalCost(checkout, userId);
+            var result = await _checkoutService.EstimateTotalCost(checkout, userId);
             return Ok(result);
         }
 

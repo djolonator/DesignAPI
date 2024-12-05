@@ -15,6 +15,9 @@ using Infrastructure.Abstractions;
 using System.Text.Json;
 using Application.Helpers;
 using Infrastracture.Abstractions;
+using Domain.Entities;
+using Order = PaypalServerSdk.Standard.Models.Order;
+
 
 
 namespace Application.Services
@@ -65,7 +68,7 @@ namespace Application.Services
             _designRepository = designRepository;
         }
 
-        public async Task<Result<ApiResponse<Order>>> HandleInitiatePaypallOrder(string userId)
+        public async Task<Result<ApiResponse<PaypalServerSdk.Standard.Models.Order>>> HandleInitiatePaypallOrder(string userId)
         {
             var userOrder = await _orderRepository.FindOrderByUserId(userId);
             var errorMessage = "";
@@ -88,7 +91,7 @@ namespace Application.Services
                 }
             }
 
-            return Result<ApiResponse<Order>>.Failure(new Error(errorMessage));
+            return Result<ApiResponse<PaypalServerSdk.Standard.Models.Order>>.Failure(new Error(errorMessage));
         }
 
         public async Task<Result<Generic>> HandleCapturePaypallOrder(string paypallOrderId, string userId)
@@ -96,15 +99,28 @@ namespace Application.Services
             var capturePaypallRequestResult = await CapturePaypallOrder(paypallOrderId);
             if (capturePaypallRequestResult.IsSuccess)
             {
-                var userOrder = _orderRepository.FindOrderByUserIdNoTracking(userId);
+                var userOrder = await _orderRepository.FindOrderByUserId(userId);
 
                 if (userOrder != null) 
-                { 
-                    //confirm order
-                    //return success
+                {
+                    userOrder.PaypallCaptureId = capturePaypallRequestResult.Value;
+                    long printfullOrderId = userOrder.PrintfullOrderId;
+                    _orderRepository.SaveChanges();
+                    var result = await ConfirmPrintfullOrder(printfullOrderId);
+                    if (result.IsSuccess)
+                    {
+                        return Result<Generic>.Success(new Generic() { Value = "Payment was success, you can track your order..." });
+                    }
+                    else
+                    {
+                        await RefundCapturedPayment(capturePaypallRequestResult.Value!);
+                        // return money from paypall
+                        //return fail
+                    }
                 }
                 else
                 {
+                    // return money from paypall
                     //return fail
                 }
             }
@@ -116,46 +132,45 @@ namespace Application.Services
             return Result<Generic>.Success(new Generic() { Value = "Success"}); 
         }
 
-        public async Task<Result<CostCalculation>> CalculateTotalCost(CheckoutRequest checkoutRequest, string userId)
+        public async Task<Result<CostCalculation>> EstimateTotalCost(CheckoutRequest checkoutRequest, string userId)
         {
             var checkout = new CheckoutRequest();
             checkout.CartItems = checkoutRequest.CartItems;
             checkout.Recipient = checkoutRequest.Recipient;
 
-            var result = await CreatePrintfullOrder(checkoutRequest);
+            var result = await EstimatePrintfullOrderCosts(checkoutRequest);
 
             if (result.IsSuccess)
             {
                 var costCalculation = new CostCalculation();
-                costCalculation.TotalCost = result.Value.Result.Costs.Total;
+                costCalculation.TotalCost = result.Value!.Result.Costs.Total;
                 costCalculation.ItemsCost = result.Value.Result.Costs.Subtotal;
                 costCalculation.ShippingCost = result.Value.Result.Costs.Shipping;
 
+                var orderItems = new List<OrderItem>();
+
+                checkout.CartItems.ForEach(cartItem => 
+                {
+                    var orderItem = new OrderItem();
+                    orderItem.ProductId = cartItem.ProductId;
+                    orderItem.Quantity = cartItem.Quantity;
+                    orderItem.DesignId = cartItem.DesignId;
+
+                    orderItems.Add(orderItem);
+                });
                 var orderId = await _orderRepository.CreateOrder(new Domain.Entities.Order()
                 {
                     UserId = userId,
-                    PrintfullOrderId = result.Value.Result.Id
-                });
+                    OrderItems = orderItems
 
-                if (orderId > 0)
-                {
-                    return Result<CostCalculation>.Success(costCalculation);
-                }
-                else
-                {
-                    CancelPrintfullOrder(result.Value.Result.Id);
-                    return Result<CostCalculation>.Failure(new Error("Internal server error"));
-                }
-                
-            }
-            else
-            {
-                return Result<CostCalculation>.Failure(new Error(result.Error.Message));
+                });
+                return Result<CostCalculation>.Success(costCalculation);
             }
             
+            return Result<CostCalculation>.Failure(new Error("Order costs could not be estimated at this moment"));
         }
 
-        private async Task<ApiResponse<Order>> CreatePaypallOrder(string amount)
+        private async Task<ApiResponse<PaypalServerSdk.Standard.Models.Order>> CreatePaypallOrder(string amount)
         {
             OrdersCreateInput ordersCreateInput = new OrdersCreateInput
             {
@@ -177,7 +192,7 @@ namespace Application.Services
 
             try
             {
-                ApiResponse<Order> result = await _ordersController.OrdersCreateAsync(ordersCreateInput);
+                ApiResponse<PaypalServerSdk.Standard.Models.Order> result = await _ordersController.OrdersCreateAsync(ordersCreateInput);
                 return result;
             }
             catch (Exception ex) 
@@ -185,10 +200,10 @@ namespace Application.Services
 
             }
 
-            return new ApiResponse<Order>(500,new Dictionary<string, string>(), new Order());
+            return new ApiResponse<PaypalServerSdk.Standard.Models.Order>(500,new Dictionary<string, string>(), new PaypalServerSdk.Standard.Models.Order());
         }
 
-        private bool IsPaypallOrderRequestSuccess(ApiResponse<Order> order)
+        private bool IsPaypallOrderRequestSuccess(ApiResponse<PaypalServerSdk.Standard.Models.Order> order)
         {
             if (order.StatusCode is 201)
             {
@@ -200,18 +215,74 @@ namespace Application.Services
             }
         }
 
-        private async Task<dynamic> CapturePaypallOrder(string paypallOrderID)
+        private async Task<Result<string>> CapturePaypallOrder(string paypallOrderID)
         {
             OrdersCaptureInput ordersCaptureInput = new OrdersCaptureInput
             {
                 Id = paypallOrderID,
             };
 
-            ApiResponse<Order> result = await _ordersController.OrdersCaptureAsync(ordersCaptureInput);
+            ApiResponse<PaypalServerSdk.Standard.Models.Order> result = await _ordersController.OrdersCaptureAsync(ordersCaptureInput);
 
-            return result;
+            if (result.StatusCode is 201)
+            {
+                return Result<string>.Success(result.Data.PurchaseUnits[0].Payments.Captures[0].Id);
+            }
+            else
+            {
+                return Result<string>.Failure(new Error("Failed to capture paypall order"));
+            }
+          
         }
 
+        private async Task<ApiResponse<Refund>> RefundCapturedPayment(string captureId)
+        {
+            CapturesRefundInput capturesRefundInput = new CapturesRefundInput
+            {
+                CaptureId = captureId,
+            };
+
+            try
+            {
+                ApiResponse<Refund> result = await _paymentsController.CapturesRefundAsync(capturesRefundInput);
+                return result;
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return new ApiResponse<Refund>(500, new Dictionary<string, string>(), new Refund());
+        }
+
+        private async Task<Result<EstimatePrintfullOrderCosts>> EstimatePrintfullOrderCosts(CheckoutRequest checkoutRequest)
+        {
+            var client = _httpClientFactory.CreateClient("printfull");
+            var orderBody = await CreateOrderBodyForRequest(checkoutRequest);
+            var result = new HttpResponseMessage();
+
+            try
+            {
+                result = await client.PostAsJsonAsync<CreatePrintfullOrderRequest>("/orders/estimate-costs", orderBody);
+                var content = await result.Content.ReadAsStringAsync();
+
+                if (result.IsSuccessStatusCode)
+                {
+                    return Result<EstimatePrintfullOrderCosts>.Success(JsonSerializer.Deserialize<EstimatePrintfullOrderCosts>(content));
+                }
+                else
+                {
+                    var error = JsonSerializer.Deserialize<ErrorResponsePrintfull>(content);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                //error message from printfull api resposnse for logs
+            }
+
+            return Result<EstimatePrintfullOrderCosts>.Failure(new Error("Could not process order right now"));
+        }
 
         private async Task<Result<PrintfullOrderResponse>> CreatePrintfullOrder(CheckoutRequest checkoutRequest)
         {
@@ -227,6 +298,10 @@ namespace Application.Services
                 if (result.IsSuccessStatusCode) 
                 {
                     return Result<PrintfullOrderResponse>.Success(JsonSerializer.Deserialize<PrintfullOrderResponse>(content));
+                }
+                else
+                {
+                    var error = JsonSerializer.Deserialize<ErrorResponsePrintfull>(content);
                 }
                 
             }
@@ -276,6 +351,36 @@ namespace Application.Services
             }
 
             return Result<PrintfullOrderResponseGet>.Failure(new Error("Message from response"));//error message from printfull api resposnse
+        }
+
+        private async Task<Result<Generic>> ConfirmPrintfullOrder(long orderId)
+        {
+            var client = _httpClientFactory.CreateClient("printfull");
+
+            var result = new HttpResponseMessage();
+
+            try
+            {
+                result = await client.PostAsync($"/orders/{orderId}/confirm", null);
+
+                if (result.IsSuccessStatusCode)
+                {
+                    
+                    return Result<Generic>.Success(new Generic() { Value = "Order confirmed"});
+                }
+                else
+                {
+                    var content = await result.Content.ReadAsStringAsync();
+                    var error = JsonSerializer.Deserialize<ErrorResponsePrintfull>(content);
+                    return Result<Generic>.Failure(new Error("Could not confirm order"));
+                }
+
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return Result<Generic>.Failure(new Error("Could not confirm order"));
         }
 
         private async Task<CreatePrintfullOrderRequest> CreateOrderBodyForRequest(CheckoutRequest checkoutRequest)
