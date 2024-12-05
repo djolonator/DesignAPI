@@ -30,7 +30,7 @@ namespace Infrastracture.Models
         public string Currency { get; set; }
 
         [JsonPropertyName("subtotal")]
-        public decimal? Subtotal { get; set; }
+        public decimal Subtotal { get; set; }
 
         [JsonPropertyName("discount")]
         public decimal Discount { get; set; }

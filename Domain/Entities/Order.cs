@@ -13,7 +13,7 @@ namespace Domain.Entities
         public string? PaypallOrderId { get; set; }
         public string? PaypallCaptureId { get; set; }
         public long PrintfullOrderId { get; set; }
-        public decimal? TotalCost { get; set; }
+        public decimal TotalCost { get; set; }
         public bool Current {  get; set; }  
         public List<OrderItem> OrderItems {  get; set; }    
     }

@@ -4,12 +4,22 @@ namespace Application.Helpers
 {
     public static class PriceCalculator
     {
-        public static double CalculatePrice(double printfullPrice)
+        public static decimal AddKaymakToItemPrice(decimal printfullPrice)
         {
-            double percentageToBeAdded = 30;
-            double calculatedPrice = 0;
+            decimal kaymakInPercent = 30;
+            decimal calculatedPrice = 0;
 
-            calculatedPrice = printfullPrice + printfullPrice / 100 * percentageToBeAdded; 
+            calculatedPrice = printfullPrice + printfullPrice / 100 * kaymakInPercent; 
+
+            return calculatedPrice;
+        }
+
+        public static decimal AddKaymakToShiping(decimal shippingPrice)
+        {
+            decimal kaymakInPercent = 10;
+            decimal calculatedPrice = 0;
+
+            calculatedPrice = shippingPrice + shippingPrice / 100 * kaymakInPercent;
 
             return calculatedPrice;
         }

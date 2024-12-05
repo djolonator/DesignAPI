@@ -71,7 +71,7 @@ namespace WebApi.Controllers
 
         [Authorize]
         [HttpPost("initiatePaypallOrder")]
-        public async Task<ActionResult> InitiatePaypallOrder()
+        public async Task<ActionResult> InitiatePaypallOrder([FromBody] Recipient recipient)
         {
             var userId = GetLoggedInUserId();
             var result = await _checkoutService.HandleInitiatePaypallOrder(userId);

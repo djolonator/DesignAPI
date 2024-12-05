@@ -36,12 +36,12 @@ namespace Application.Repositories
             return await _storageContext.Order.FirstOrDefaultAsync(o => o.OrderId == id);
         }
 
-        public async Task<Order?> FindOrderByUserId(string userId)
+        public async Task<Order?> FindOrderByUserId(string userId, bool isCurrent = false)
         {
-            return await _storageContext.Order.FirstOrDefaultAsync(o => o.UserId == userId);
+            return await _storageContext.Order.FirstOrDefaultAsync(o => o.UserId == userId && o.Current == isCurrent);
         }
 
-        public async Task<Order?> FindOrderByUserIdNoTracking(string userId)
+        public async Task<Order?> FindOrderByUserIdNoTracking(string userId, bool isCurrent = false)
         {
             return await _storageContext.Order.AsNoTracking().FirstOrDefaultAsync(o => o.UserId == userId);
         }

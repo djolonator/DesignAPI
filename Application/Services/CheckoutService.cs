@@ -70,24 +70,18 @@ namespace Application.Services
 
         public async Task<Result<ApiResponse<PaypalServerSdk.Standard.Models.Order>>> HandleInitiatePaypallOrder(string userId)
         {
-            var userOrder = await _orderRepository.FindOrderByUserId(userId);
+            var userOrder = await _orderRepository.FindOrderByUserId(userId, true);
             var errorMessage = "";
             if (userOrder != null)
             {
-                var printFullOrderResult = await GetPrintfullOrder(userOrder.PrintfullOrderId);
-                if (printFullOrderResult.IsSuccess)
+                //var createPrintfullOrder = await CreatePrintfullOrder();
+                var createPaypallOrderResult = await CreatePaypallOrder(userOrder.TotalCost.ToString());
+                if (IsPaypallOrderRequestSuccess(createPaypallOrderResult))
                 {
-                    var printfullItemsPrice = printFullOrderResult.Value.Result.Costs.Subtotal;
-                    var shippingPrice = double.Parse(printFullOrderResult.Value.Result.Costs.Shipping);
-                    var myItemPrice = PriceCalculator.CalculatePrice(double.Parse(printfullItemsPrice));
-                    double totalPrice = myItemPrice + shippingPrice;
-                    var createPaypallOrderResult = await CreatePaypallOrder(totalPrice.ToString());
-                    if (IsPaypallOrderRequestSuccess(createPaypallOrderResult))
-                    {
-                        userOrder.PaypallOrderId = createPaypallOrderResult.Data.Id;
-                        _orderRepository.SaveChanges();
-                        return Result<ApiResponse<Order>>.Success(createPaypallOrderResult);
-                    }
+                    //make printfull order, if succeess update userOrder entity then save
+                    userOrder.PaypallOrderId = createPaypallOrderResult.Data.Id;
+                    _orderRepository.SaveChanges();
+                    return Result<ApiResponse<Order>>.Success(createPaypallOrderResult);
                 }
             }
 
@@ -143,10 +137,9 @@ namespace Application.Services
             if (result.IsSuccess)
             {
                 var costCalculation = new CostCalculation();
-                costCalculation.TotalCost = result.Value!.Result.Costs.Total;
-                costCalculation.ItemsCost = result.Value.Result.Costs.Subtotal;
-                costCalculation.ShippingCost = result.Value.Result.Costs.Shipping;
-
+                costCalculation.ItemsCost = PriceCalculator.AddKaymakToItemPrice(result.Value!.Result.Costs.Subtotal);
+                costCalculation.ShippingCost = PriceCalculator.AddKaymakToShiping(result.Value.Result.Costs.Shipping);
+                costCalculation.TotalCost = costCalculation.ItemsCost + costCalculation.ShippingCost;
                 var orderItems = new List<OrderItem>();
 
                 checkout.CartItems.ForEach(cartItem => 
@@ -161,8 +154,9 @@ namespace Application.Services
                 var orderId = await _orderRepository.CreateOrder(new Domain.Entities.Order()
                 {
                     UserId = userId,
-                    OrderItems = orderItems
-
+                    OrderItems = orderItems,
+                    Current = true,
+                    TotalCost = costCalculation.TotalCost
                 });
                 return Result<CostCalculation>.Success(costCalculation);
             }
@@ -292,7 +286,7 @@ namespace Application.Services
 
             try
             {
-                result = await client.PostAsJsonAsync<CreatePrintfullOrderRequest>("/orders", orderBody);
+                result = await client.PostAsJsonAsync<CreatePrintfullOrderRequest>("/orders?confirm=true", orderBody);
                 var content = await result.Content.ReadAsStringAsync();
 
                 if (result.IsSuccessStatusCode) 
