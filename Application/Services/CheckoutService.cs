@@ -74,14 +74,24 @@ namespace Application.Services
             var userOrder = await _orderRepository.FindOrderByUserId(userId, true);
             if (userOrder != null)
             {
-                var createPrintfullOrder = await CreatePrintfullOrder(userOrder);
-                var createPaypallOrderResult = await CreatePaypallOrder(userOrder.TotalCost.ToString());
-                if (IsPaypallOrderRequestSuccess(createPaypallOrderResult))
+                var createPrintfullOrderResult = await CreatePrintfullOrder(userOrder);
+
+                if (createPrintfullOrderResult.IsSuccess)
                 {
-                    //make printfull order, if succeess update userOrder entity then save
-                    userOrder.PaypallOrderId = createPaypallOrderResult.Data.Id;
-                    _orderRepository.SaveChanges();
-                    return Result<ApiResponse<Order>>.Success(createPaypallOrderResult);
+                    userOrder.PrintfullOrderId = createPrintfullOrderResult.Value!.Result.Id;
+                    var createPaypallOrderResult = await CreatePaypallOrder(userOrder.TotalCost.ToString());
+                    if (IsPaypallOrderRequestSuccess(createPaypallOrderResult))
+                    {
+                        userOrder.PaypallOrderId = createPaypallOrderResult.Data.Id;
+                        _orderRepository.SaveChanges();
+                        return Result<ApiResponse<Order>>.Success(createPaypallOrderResult);
+                    }
+                    else
+                    {
+                        CancelPrintfullOrder(userOrder.PrintfullOrderId);
+                        var deleteResult = _orderRepository.DeleteOrder(userOrder);
+                        _orderRepository.SaveChanges();
+                    }
                 }
             }
 
@@ -99,28 +109,19 @@ namespace Application.Services
                 {
                     userOrder.PaypallCaptureId = capturePaypallRequestResult.Value;
                     long printfullOrderId = userOrder.PrintfullOrderId;
+                    userOrder.Current = false;
                     _orderRepository.SaveChanges();
                     var result = await ConfirmPrintfullOrder(printfullOrderId);
-                    if (result.IsSuccess)
-                    {
-                        return Result<Generic>.Success(new Generic() { Value = "Payment was success, you can track your order..." });
-                    }
-                    else
-                    {
-                        await RefundCapturedPayment(capturePaypallRequestResult.Value!);
-                        // return money from paypall
-                        //return fail
-                    }
+                    return Result<Generic>.Success(new Generic() { Value = "Payment was success, you can track your order..." });
                 }
                 else
                 {
-                    // return money from paypall
-                    //return fail
+                   //TODO
                 }
             }
             else
             {
-                return Result<Generic>.Failure(new Error("Paypall failed")); // read capturePaypallRequestResult for details
+                return Result<Generic>.Failure(new Error("Paypall failed"));
             }
 
             return Result<Generic>.Success(new Generic() { Value = "Success"}); 

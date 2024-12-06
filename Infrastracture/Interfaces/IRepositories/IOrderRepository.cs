@@ -1,6 +1,7 @@
 ﻿
 
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Infrastracture.Interfaces.IRepositories
 {
@@ -12,5 +13,6 @@ namespace Infrastracture.Interfaces.IRepositories
         Task DeleteOrder(string userId);
         Task<Order?> FindOrderByUserId(string userId, bool isCurrent = false);
         Task<Order?> FindOrderByUserIdNoTracking(string userId, bool isCurrent = false);
+        EntityEntry<Order> DeleteOrder(Order userOrder);
     }
 }

@@ -4,6 +4,7 @@ using Domain;
 using Domain.Entities;
 using Infrastracture.Interfaces.IRepositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Repositories
@@ -57,6 +58,13 @@ namespace Application.Repositories
                 _storageContext.Order.Remove(order);
                 _storageContext.SaveChanges();
             }
+        }
+
+        public EntityEntry<Order> DeleteOrder(Order userOrder)
+        {
+            var result = _storageContext.Order.Remove(userOrder);
+
+            return result;
         }
     }
 }
