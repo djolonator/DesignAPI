@@ -11,6 +11,6 @@ namespace Infrastracture.Interfaces.IServices
     {
         Task<Result<ApiResponse<Order>>> HandleInitiatePaypallOrder(string userId);
         Task<Result<CostCalculation>> EstimateTotalCost(CheckoutRequest checkoutRequest, string userId);
-        Task<Result<Generic>> HandleCapturePaypallOrder(string paypallOrderId, string userId);
+        Task<Result<string>> HandleCapturePaypallOrder(string paypallOrderId, string userId);
     }
 }

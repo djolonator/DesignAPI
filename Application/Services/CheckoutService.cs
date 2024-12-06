@@ -74,57 +74,56 @@ namespace Application.Services
             var userOrder = await _orderRepository.FindOrderByUserId(userId, true);
             if (userOrder != null)
             {
-                var createPrintfullOrderResult = await CreatePrintfullOrder(userOrder);
-
-                if (createPrintfullOrderResult.IsSuccess)
+                var createPaypallOrderResult = await CreatePaypallOrder(userOrder.TotalCost.ToString());
+                if (IsPaypallOrderRequestSuccess(createPaypallOrderResult))
                 {
-                    userOrder.PrintfullOrderId = createPrintfullOrderResult.Value!.Result.Id;
-                    var createPaypallOrderResult = await CreatePaypallOrder(userOrder.TotalCost.ToString());
-                    if (IsPaypallOrderRequestSuccess(createPaypallOrderResult))
-                    {
-                        userOrder.PaypallOrderId = createPaypallOrderResult.Data.Id;
-                        _orderRepository.SaveChanges();
-                        return Result<ApiResponse<Order>>.Success(createPaypallOrderResult);
-                    }
-                    else
-                    {
-                        CancelPrintfullOrder(userOrder.PrintfullOrderId);
-                        var deleteResult = _orderRepository.DeleteOrder(userOrder);
-                        _orderRepository.SaveChanges();
-                    }
+                    userOrder.PaypallOrderId = createPaypallOrderResult.Data.Id;
+                    _orderRepository.SaveChanges();
+                    return Result<ApiResponse<Order>>.Success(createPaypallOrderResult);
+                }
+                else
+                {
+                    //see if delete here
+                    var deleteResult = _orderRepository.DeleteOrder(userOrder);
+                    _orderRepository.SaveChanges();
                 }
             }
 
-            return Result<ApiResponse<PaypalServerSdk.Standard.Models.Order>>.Failure(new Error("Something went wrong with order processing"));
+            return Result<ApiResponse<Order>>.Failure(new Error("Something went wrong with order processing"));
         }
 
-        public async Task<Result<Generic>> HandleCapturePaypallOrder(string paypallOrderId, string userId)
+        public async Task<Result<string>> HandleCapturePaypallOrder(string paypallOrderId, string userId)
         {
             var capturePaypallRequestResult = await CapturePaypallOrder(paypallOrderId);
             if (capturePaypallRequestResult.IsSuccess)
             {
-                var userOrder = await _orderRepository.FindOrderByUserId(userId);
+                var userOrder = await _orderRepository.FindOrderByUserId(userId, true);
 
                 if (userOrder != null) 
                 {
-                    userOrder.PaypallCaptureId = capturePaypallRequestResult.Value;
-                    long printfullOrderId = userOrder.PrintfullOrderId;
-                    userOrder.Current = false;
-                    _orderRepository.SaveChanges();
-                    var result = await ConfirmPrintfullOrder(printfullOrderId);
-                    return Result<Generic>.Success(new Generic() { Value = "Payment was success, you can track your order..." });
+                    var createPrintfullOrderResult = await CreatePrintfullOrder(userOrder);
+
+                    if (createPrintfullOrderResult.IsSuccess)
+                    {
+                        userOrder.PrintfullOrderId = createPrintfullOrderResult.Value!.Result.Id;
+                        userOrder.PaypallCaptureId = capturePaypallRequestResult.Value;
+                        long printfullOrderId = userOrder.PrintfullOrderId;
+                        userOrder.Current = false;
+                        _orderRepository.SaveChanges();
+                        return Result<string>.Success( "Payment was success, you can track your order...");
+                    }
                 }
                 else
                 {
-                   //TODO
+                   
                 }
             }
             else
             {
-                return Result<Generic>.Failure(new Error("Paypall failed"));
+                
             }
 
-            return Result<Generic>.Success(new Generic() { Value = "Success"}); 
+            return Result<string>.Failure(new Error("Paypall failed"));
         }
 
         public async Task<Result<CostCalculation>> EstimateTotalCost(CheckoutRequest checkoutRequest, string userId)
