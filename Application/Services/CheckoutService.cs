@@ -99,7 +99,7 @@ namespace Application.Services
             {
                 var userOrder = await _orderRepository.FindOrderByUserId(userId, true);
 
-                if (userOrder != null) 
+                if (userOrder != null)
                 {
                     var createPrintfullOrderResult = await CreatePrintfullOrder(userOrder);
 
@@ -110,18 +110,12 @@ namespace Application.Services
                         long printfullOrderId = userOrder.PrintfullOrderId;
                         userOrder.Current = false;
                         _orderRepository.SaveChanges();
-                        return Result<string>.Success( "Payment was success, you can track your order...");
+                        return Result<string>.Success("Payment was success, you can track your order...");
                     }
                 }
-                else
-                {
-                   
-                }
             }
-            else
-            {
-                
-            }
+
+            //remove paypall order?
 
             return Result<string>.Failure(new Error("Paypall failed"));
         }
