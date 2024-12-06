@@ -71,25 +71,31 @@ namespace WebApi.Controllers
 
         [Authorize]
         [HttpPost("initiatePaypallOrder")]
-        public async Task<ActionResult> InitiatePaypallOrder()
+        public async Task<IActionResult> InitiatePaypallOrder()
         {
             var userId = GetLoggedInUserId();
             var result = await _checkoutService.HandleInitiatePaypallOrder(userId);
-            return Ok(result);
+
+            return result.Map<IActionResult>(
+                onSuccess: result => Ok(result),
+                onFailure: error => BadRequest(error));
         }
 
         [Authorize]
         [HttpPost("capturePaypallOrder/{paypallOrderId}")]
-        public async Task<ActionResult> CapturePaypallOrder([FromRoute] string paypallOrderId)
+        public async Task<IActionResult> CapturePaypallOrder([FromRoute] string paypallOrderId)
         {
             var userId = GetLoggedInUserId();
             var result = await _checkoutService.HandleCapturePaypallOrder(paypallOrderId, userId);
-            return Ok(result);
+
+            return result.Map<IActionResult>(
+                onSuccess: result => Ok(result),
+                onFailure: error => BadRequest(error));
         }
 
         [Authorize]
         [HttpPost("estimateTotalCost")]
-        public async Task<ActionResult> EstimateTotalCost([FromBody] CheckoutRequest checkout)
+        public async Task<IActionResult> EstimateTotalCost([FromBody] CheckoutRequest checkout)
         {
             var validationResult = await _validator.ValidateAsync(checkout);
 
@@ -99,7 +105,10 @@ namespace WebApi.Controllers
             }
             var userId = GetLoggedInUserId();
             var result = await _checkoutService.EstimateTotalCost(checkout, userId);
-            return Ok(result);
+
+            return result.Map<IActionResult>(
+                onSuccess: result => Ok(result),
+                onFailure: error => BadRequest(error));
         }
 
         private string GetLoggedInUserId()
