@@ -12,6 +12,7 @@ namespace Domain
         public DbSet<Order> Order { get; set; }
         public DbSet<Product> Product { get; set; }
         public DbSet<OrderItem> OrderItem { get; set; }
+        public DbSet<Recipient> Recipient { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

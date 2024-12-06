@@ -1,4 +1,5 @@
 ﻿
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -16,5 +17,8 @@ namespace Domain.Entities
         public decimal TotalCost { get; set; }
         public bool Current {  get; set; }  
         public List<OrderItem> OrderItems {  get; set; }    
+        public Recipient Recipient { get; set; }
     }
+
+    
 }

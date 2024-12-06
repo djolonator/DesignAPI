@@ -4,7 +4,7 @@ using Infrastracture.Models;
 
 namespace Application.Validations
 {
-    public  class CartItemValidator: AbstractValidator<CartItem>
+    public  class CartItemValidator: AbstractValidator<CartItemModel>
     {
         public CartItemValidator() 
         {

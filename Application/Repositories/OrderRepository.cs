@@ -38,7 +38,10 @@ namespace Application.Repositories
 
         public async Task<Order?> FindOrderByUserId(string userId, bool isCurrent = false)
         {
-            return await _storageContext.Order.FirstOrDefaultAsync(o => o.UserId == userId && o.Current == isCurrent);
+            return await _storageContext.Order
+                .Include(o => o.Recipient)
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.UserId == userId && o.Current == isCurrent);
         }
 
         public async Task<Order?> FindOrderByUserIdNoTracking(string userId, bool isCurrent = false)

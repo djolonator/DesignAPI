@@ -4,7 +4,7 @@ using Infrastracture.Models;
 
 namespace Application.Validations
 {
-    public class RecipientValidator : AbstractValidator<Recipient>
+    public class RecipientValidator : AbstractValidator<RecipientModel>
     {
         public RecipientValidator()
         {

@@ -33,8 +33,8 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 
 builder.Services.AddScoped<IValidator<CheckoutRequest>, CheckoutValidator>();
-builder.Services.AddScoped<IValidator<CartItem>, CartItemValidator>();
-builder.Services.AddScoped<IValidator<Recipient>, RecipientValidator>();
+builder.Services.AddScoped<IValidator<CartItemModel>, CartItemValidator>();
+builder.Services.AddScoped<IValidator<RecipientModel>, RecipientValidator>();
 
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 

@@ -5,13 +5,13 @@ namespace Infrastracture.Models
 {
     public class CheckoutRequest
     {
-       public Recipient? Recipient { get; set; }
-       public List<CartItem> CartItems { get; set; } = new List<CartItem>();
+       public RecipientModel? Recipient { get; set; }
+       public List<CartItemModel> CartItems { get; set; } = new List<CartItemModel>();
        public string? PaypallOrderId { get; set; }
        public int PrintfullOrderId { get; set; }
     }
 
-    public record Recipient
+    public record RecipientModel
     {
         [JsonProperty("phone")]
         public string? Phone { get; set; }
@@ -39,7 +39,7 @@ namespace Infrastracture.Models
 
     }
 
-    public class CartItem
+    public class CartItemModel
     {
         public int DesignId { get; set; }
         public int ProductId { get; set; }

@@ -17,6 +17,7 @@ using Application.Helpers;
 using Infrastracture.Abstractions;
 using Domain.Entities;
 using Order = PaypalServerSdk.Standard.Models.Order;
+using System.Diagnostics.Metrics;
 
 
 
@@ -71,10 +72,9 @@ namespace Application.Services
         public async Task<Result<ApiResponse<PaypalServerSdk.Standard.Models.Order>>> HandleInitiatePaypallOrder(string userId)
         {
             var userOrder = await _orderRepository.FindOrderByUserId(userId, true);
-            var errorMessage = "";
             if (userOrder != null)
             {
-                //var createPrintfullOrder = await CreatePrintfullOrder();
+                var createPrintfullOrder = await CreatePrintfullOrder(userOrder);
                 var createPaypallOrderResult = await CreatePaypallOrder(userOrder.TotalCost.ToString());
                 if (IsPaypallOrderRequestSuccess(createPaypallOrderResult))
                 {
@@ -85,7 +85,7 @@ namespace Application.Services
                 }
             }
 
-            return Result<ApiResponse<PaypalServerSdk.Standard.Models.Order>>.Failure(new Error(errorMessage));
+            return Result<ApiResponse<PaypalServerSdk.Standard.Models.Order>>.Failure(new Error("Something went wrong with order processing"));
         }
 
         public async Task<Result<Generic>> HandleCapturePaypallOrder(string paypallOrderId, string userId)
@@ -151,13 +151,45 @@ namespace Application.Services
 
                     orderItems.Add(orderItem);
                 });
-                var orderId = await _orderRepository.CreateOrder(new Domain.Entities.Order()
+
+                var userOrder = await _orderRepository.FindOrderByUserId(userId, true);
+
+                if (userOrder == null)
                 {
-                    UserId = userId,
-                    OrderItems = orderItems,
-                    Current = true,
-                    TotalCost = costCalculation.TotalCost
-                });
+                    var orderId = await _orderRepository.CreateOrder(new Domain.Entities.Order()
+                    {
+                        UserId = userId,
+                        OrderItems = orderItems,
+                        Current = true,
+                        TotalCost = costCalculation.TotalCost,
+                        Recipient = new Recipient 
+                        { 
+                            Address = checkoutRequest.Recipient!.Address!,
+                            Email = checkoutRequest.Recipient.Email!,
+                            Phone = checkoutRequest.Recipient.Phone!,
+                            FirstName = checkoutRequest.Recipient.FirstName!,
+                            LastName = checkoutRequest.Recipient.LastName!,
+                            City = checkoutRequest.Recipient.City!,
+                            Country = checkoutRequest.Recipient.Country!,
+                            Zip = checkoutRequest.Recipient.Zip!
+                        }
+                    });
+                }
+                else
+                {
+                    userOrder.OrderItems = orderItems;
+                    userOrder.TotalCost = costCalculation.TotalCost;
+                    userOrder.Recipient.Address = checkoutRequest.Recipient!.Address!;
+                    userOrder.Recipient.Email = checkoutRequest.Recipient.Email!;
+                    userOrder.Recipient.Phone = checkoutRequest.Recipient.Phone!;
+                    userOrder.Recipient.FirstName = checkoutRequest.Recipient.FirstName!;
+                    userOrder.Recipient.LastName = checkoutRequest.Recipient.LastName!;
+                    userOrder.Recipient.City = checkoutRequest.Recipient.City!;
+                    userOrder.Recipient.Country = checkoutRequest.Recipient.Country!;
+                    userOrder.Recipient.Zip = checkoutRequest.Recipient.Zip!;
+                    _orderRepository.SaveChanges();
+                }
+                
                 return Result<CostCalculation>.Success(costCalculation);
             }
             
@@ -252,7 +284,8 @@ namespace Application.Services
         private async Task<Result<EstimatePrintfullOrderCosts>> EstimatePrintfullOrderCosts(CheckoutRequest checkoutRequest)
         {
             var client = _httpClientFactory.CreateClient("printfull");
-            var orderBody = await CreateOrderBodyForRequest(checkoutRequest);
+            var userOrderModel = MapCheckoutRequestToOrder(checkoutRequest);
+            var orderBody = await CreateOrderBodyForRequest(userOrderModel);
             var result = new HttpResponseMessage();
 
             try
@@ -278,10 +311,10 @@ namespace Application.Services
             return Result<EstimatePrintfullOrderCosts>.Failure(new Error("Could not process order right now"));
         }
 
-        private async Task<Result<PrintfullOrderResponse>> CreatePrintfullOrder(CheckoutRequest checkoutRequest)
+        private async Task<Result<PrintfullOrderResponse>> CreatePrintfullOrder(Domain.Entities.Order userOrder)
         {
             var client = _httpClientFactory.CreateClient("printfull");
-            var orderBody = await CreateOrderBodyForRequest(checkoutRequest);
+            var orderBody = await CreateOrderBodyForRequest(userOrder);
             var result = new HttpResponseMessage();
 
             try
@@ -377,24 +410,24 @@ namespace Application.Services
             return Result<Generic>.Failure(new Error("Could not confirm order"));
         }
 
-        private async Task<CreatePrintfullOrderRequest> CreateOrderBodyForRequest(CheckoutRequest checkoutRequest)
+        private async Task<CreatePrintfullOrderRequest> CreateOrderBodyForRequest(Domain.Entities.Order userOrder)
         {
             var orderBody = new CreatePrintfullOrderRequest();
             var recipient = new PrintfullOrderRecipient()
             {
-                Name = checkoutRequest.Recipient!.FirstName + " " + checkoutRequest.Recipient.LastName,
-                Address1 = checkoutRequest.Recipient!.Address!,
-                City = checkoutRequest.Recipient!.City!,
-                CountryCode = checkoutRequest.Recipient!.Country!,
-                CountryName = "Serbia",
-                Zip = checkoutRequest.Recipient!.Zip!,
-                Phone = checkoutRequest.Recipient!.Phone!,
-                Email = checkoutRequest.Recipient!.Email!
+                Name = userOrder.Recipient!.FirstName + " " + userOrder.Recipient.LastName,
+                Address1 = userOrder.Recipient!.Address!,
+                City = userOrder.Recipient!.City!,
+                CountryCode = userOrder.Recipient!.Country!,
+                CountryName = Constants.CountriesNames.CountryNames()[userOrder.Recipient.Country],
+                Zip = userOrder.Recipient!.Zip!,
+                Phone = userOrder.Recipient!.Phone!,
+                Email = userOrder.Recipient!.Email!
             };
 
             var items = new List<PrintfullOrderItem>();
 
-            foreach (var i in checkoutRequest.CartItems)
+            foreach (var i in userOrder.OrderItems)
             {
                 var design = await _designRepository.GetDesignByIdAsync(i.DesignId);
                 if (design != null && !string.IsNullOrEmpty(design.ImgForPrintUrl))
@@ -418,6 +451,35 @@ namespace Application.Services
             orderBody.Recipient = recipient;
             orderBody.Items = items;
             return orderBody;
+        }
+
+        private Domain.Entities.Order MapCheckoutRequestToOrder(CheckoutRequest checkout)
+        {
+            var order = new Domain.Entities.Order();
+            order.OrderItems = new List<OrderItem>();
+            checkout.CartItems.ForEach(cartItem =>
+            {
+                var orderItem = new OrderItem();
+                orderItem.ProductId = cartItem.ProductId;
+                orderItem.Quantity = cartItem.Quantity;
+                orderItem.DesignId = cartItem.DesignId;
+
+                order.OrderItems.Add(orderItem);
+            });
+
+            order.Recipient = new Recipient
+            {
+                Address = checkout.Recipient!.Address!,
+                Email = checkout.Recipient.Email!,
+                Phone = checkout.Recipient.Phone!,
+                FirstName = checkout.Recipient.FirstName!,
+                LastName = checkout.Recipient.LastName!,
+                City = checkout.Recipient.City!,
+                Country = checkout.Recipient.Country!,
+                Zip = checkout.Recipient.Zip!
+            };
+
+            return order;
         }
     }
 }
