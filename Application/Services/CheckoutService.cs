@@ -92,10 +92,10 @@ namespace Application.Services
             return Result<ApiResponse<Order>>.Failure(new Error("Something went wrong with order processing"));
         }
 
-        public async Task<Result<string>> HandleCapturePaypallOrder(string paypallOrderId, string userId)
+        public async Task<Result<ApiResponse<PaypalServerSdk.Standard.Models.Order>>> HandleCapturePaypallOrder(string paypallOrderId, string userId)
         {
             var capturePaypallRequestResult = await CapturePaypallOrder(paypallOrderId);
-            if (capturePaypallRequestResult.IsSuccess)
+            if (capturePaypallRequestResult.StatusCode == 201)
             {
                 var userOrder = await _orderRepository.FindOrderByUserId(userId, true);
 
@@ -106,18 +106,18 @@ namespace Application.Services
                     if (createPrintfullOrderResult.IsSuccess)
                     {
                         userOrder.PrintfullOrderId = createPrintfullOrderResult.Value!.Result.Id;
-                        userOrder.PaypallCaptureId = capturePaypallRequestResult.Value;
+                        userOrder.PaypallCaptureId = capturePaypallRequestResult.Data.PurchaseUnits[0].Payments.Captures[0].Id;
                         long printfullOrderId = userOrder.PrintfullOrderId;
                         userOrder.Current = false;
                         _orderRepository.SaveChanges();
-                        return Result<string>.Success("Payment was success, you can track your order...");
+                        
                     }
                 }
             }
 
             //remove paypall order?
 
-            return Result<string>.Failure(new Error("Paypall failed"));
+            return Result<ApiResponse<PaypalServerSdk.Standard.Models.Order>>.Success(capturePaypallRequestResult);
         }
 
         public async Task<Result<CostCalculation>> EstimateTotalCost(CheckoutRequest checkoutRequest, string userId)
@@ -235,7 +235,7 @@ namespace Application.Services
             }
         }
 
-        private async Task<Result<string>> CapturePaypallOrder(string paypallOrderID)
+        private async Task<ApiResponse<PaypalServerSdk.Standard.Models.Order>> CapturePaypallOrder(string paypallOrderID)
         {
             OrdersCaptureInput ordersCaptureInput = new OrdersCaptureInput
             {
@@ -244,15 +244,8 @@ namespace Application.Services
 
             ApiResponse<PaypalServerSdk.Standard.Models.Order> result = await _ordersController.OrdersCaptureAsync(ordersCaptureInput);
 
-            if (result.StatusCode is 201)
-            {
-                return Result<string>.Success(result.Data.PurchaseUnits[0].Payments.Captures[0].Id);
-            }
-            else
-            {
-                return Result<string>.Failure(new Error("Failed to capture paypall order"));
-            }
-          
+            return result;
+
         }
 
         private async Task<ApiResponse<Refund>> RefundCapturedPayment(string captureId)

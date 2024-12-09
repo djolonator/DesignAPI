@@ -101,7 +101,7 @@ namespace WebApi.Controllers
 
             if (!validationResult.IsValid)
             {
-                return BadRequest(validationResult.Errors);
+                return UnprocessableEntity(validationResult.Errors);
             }
             var userId = GetLoggedInUserId();
             var result = await _checkoutService.EstimateTotalCost(checkout, userId);
