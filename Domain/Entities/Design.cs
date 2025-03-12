@@ -14,6 +14,7 @@ namespace Domain.Entities
         [ForeignKey("DesignCategory")]
         public long DesignCategoryId { get; set; }
         public DesignCategory DesignCategory { get; set; }
+        public List<OrderItem> OrderItems { get; set; }
         public string? ImgUrl { get; set; }
         public string? MockUrl { get; set; }
         public string? ImgForPrintUrl { get; set; }

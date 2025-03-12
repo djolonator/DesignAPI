@@ -122,5 +122,32 @@ namespace Application.Services
                 throw;
             }
         }
+
+        public async Task<Result<List<DesignModel>>> GetBestsellingDesignsPaginated(int pageSize, int page)
+        {
+            try
+            {
+                var result = await _designRepository.GetBestSellersDesigns(pageSize, page);
+                var designModels = new List<DesignModel>();
+                foreach (var item in result)
+                {
+                    var design = new DesignModel
+                    {
+                        DesignId = item.DesignId,
+                        DesignName = item.DesignName,
+                        ImgUrl = item.ImgUrl,
+                        MockUrl = item.MockUrl,
+                    };
+                    designModels.Add(design);
+                }
+
+                return Result<List<DesignModel>>.Success(designModels);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in: DesignService.GetGesignsByCategoryIdPaginated()");
+                throw;
+            }
+        }
     }
 }

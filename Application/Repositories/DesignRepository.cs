@@ -5,6 +5,7 @@ using Infrastracture.Interfaces.IRepositories;
 using Infrastracture.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Polly;
 
 namespace Application.Repositories
 {
@@ -78,9 +79,40 @@ namespace Application.Repositories
             }
         }
 
-        public async Task<Design?> GetDesignByIdAsync(int designId) 
+        public async Task<Design?> GetDesignByIdAsync(long designId) 
         {
             return await _storageContext.Design.AsNoTracking().FirstOrDefaultAsync(d => d.DesignId == designId);
+        }
+
+        public async Task<List<Design>> GetBestSellersDesigns(int pageSize, int page)
+        {
+            try
+            {
+                var bestsellerDesigns = await _storageContext.OrderItem
+                    .GroupBy(oi => oi.DesignId)
+                    .Select(group => new
+                    {
+                        DesignId = group.Key,
+                        TotalQuantity = group.Sum(oi => oi.Quantity)
+                    })
+                    .OrderByDescending(x => x.TotalQuantity)
+                    .Skip(pageSize * page)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                var designIds = bestsellerDesigns.Select(x => x.DesignId).ToList();
+
+                var designs = await _storageContext.Design
+                    .Where(d => designIds.Contains(d.DesignId))
+                    .ToListAsync();
+
+                return designs;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in: DesignRepository.GetBestSellersDesigns()");
+                throw;
+            }
         }
     }
 }

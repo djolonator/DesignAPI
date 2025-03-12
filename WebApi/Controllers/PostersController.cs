@@ -70,6 +70,18 @@ namespace WebApi.Controllers
         }
 
         [Authorize]
+        [HttpGet("bestsellingDesigns")]
+        public async Task<IActionResult> DesignsByCategory([FromQuery] int page)
+        {
+            int pageSize = 5;
+            var result = await _designService.GetBestsellingDesignsPaginated(pageSize, page);
+
+            return result.Map<IActionResult>(
+                onSuccess: result => Ok(result),
+                onFailure: error => BadRequest(error));
+        }
+
+        [Authorize]
         [HttpPost("initiatePaypallOrder")]
         public async Task<IActionResult> InitiatePaypallOrder()
         {

@@ -12,7 +12,10 @@ namespace Domain.Entities
         [ForeignKey("Order")]
         public long OrderId { get; set; }
         public Order Order { get; set; }
-        public int DesignId { get; set; }
+
+        [ForeignKey("Design")]
+        public long DesignId { get; set; }
+        public Design Design { get; set; }
         public int ProductId { get; set; }
         public int Quantity { get; set; }
     }
