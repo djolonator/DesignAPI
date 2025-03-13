@@ -7,7 +7,7 @@ namespace Infrastracture.Interfaces.IRepositories
 {
     public interface IDesignRepository
     {
-        Task<List<Design>> GetDesignsAsync(string term);
+        Task<List<Design>> GetDesignsAsync(string term, int pageSize, int page);
         Task<List<DesignCategoryModel>> GetDesignCategoriesAsync();
         Task<List<Design>> GetDesignsByCategoryIdAsync(int categoryId, int pageSize, int page);
         Task<Design?> GetDesignByIdAsync(long designId);

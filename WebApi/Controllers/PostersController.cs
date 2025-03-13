@@ -25,9 +25,10 @@ namespace WebApi.Controllers
 
         [Authorize]
         [HttpGet("designsSearch")]
-        public async Task<IActionResult> DesignsSearch([FromQuery] string term)
+        public async Task<IActionResult> DesignsSearch([FromQuery] string term, [FromQuery] int page)
         {
-            var result = await _designService.SearchDesigns(term);
+            int pageSize = 5;
+            var result = await _designService.SearchDesigns(term, pageSize, page);
 
             return result.Map<IActionResult>(
                 onSuccess: result => Ok(result),
@@ -71,7 +72,7 @@ namespace WebApi.Controllers
 
         [Authorize]
         [HttpGet("bestsellingDesigns")]
-        public async Task<IActionResult> DesignsByCategory([FromQuery] int page)
+        public async Task<IActionResult> BestsellingDesigns([FromQuery] int page)
         {
             int pageSize = 5;
             var result = await _designService.GetBestsellingDesignsPaginated(pageSize, page);

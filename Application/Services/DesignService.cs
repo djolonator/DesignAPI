@@ -21,13 +21,13 @@ namespace Application.Services
             _logger = logger;
         }
 
-        public async Task<Result<List<DesignModel>>> SearchDesigns(string term)
+        public async Task<Result<List<DesignModel>>> SearchDesigns(string term, int pageSize, int page)
         {
             try
             {
                 var designModels = new List<DesignModel>();
                 var termNoComma = term.Replace(".", string.Empty);
-                var result = await _designRepository.GetDesignsAsync(termNoComma);
+                var result = await _designRepository.GetDesignsAsync(termNoComma, pageSize, page);
 
                 foreach (var item in result)
                 {

@@ -5,7 +5,7 @@ using Infrastracture.Interfaces.IRepositories;
 using Infrastracture.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Polly;
+
 
 namespace Application.Repositories
 {
@@ -20,7 +20,7 @@ namespace Application.Repositories
             _logger = logger;
         }
 
-        public async Task<List<Design>> GetDesignsAsync(string term)
+        public async Task<List<Design>> GetDesignsAsync(string term, int pageSize, int page)
         {
             try
             {
@@ -28,6 +28,8 @@ namespace Application.Repositories
                     .Design
                     .AsNoTracking()
                     .Where(x => x.DesignName.Contains(term) || x.Description.Contains(term))
+                    .Skip(pageSize * page)
+                    .Take(pageSize)
                     .ToListAsync();
 
                 return designes;
