@@ -14,5 +14,6 @@ namespace Infrastracture.Interfaces.IRepositories
         Task<Order?> FindOrderByUserId(string userId, bool isCurrent = false);
         Task<Order?> FindOrderByUserIdNoTracking(string userId, bool isCurrent = false);
         EntityEntry<Order> DeleteOrder(Order userOrder);
+        Task<List<Order>> GetUserOrders(string userId);
     }
 }

@@ -12,15 +12,17 @@ namespace WebApi.Controllers
     [EnableCors("AllowLocalhost3000")]
     public class PostersController : ControllerBase
     {
-        private readonly IDesignService _designService;
+        private readonly IPosterService _posterService;
         private readonly ICheckoutService _checkoutService;
+        private readonly IOrderService _orderService;
         private readonly IValidator<CheckoutRequest> _validator;
 
-        public PostersController(IDesignService designService, ICheckoutService checkoutService, IValidator<CheckoutRequest> validator)
+        public PostersController(IPosterService posterService, ICheckoutService checkoutService, IValidator<CheckoutRequest> validator, IOrderService orderService)
         {
-            _designService = designService;
+            _posterService = posterService;
             _checkoutService = checkoutService;
             _validator = validator;
+            _orderService = orderService;
         }
 
         [Authorize]
@@ -28,7 +30,7 @@ namespace WebApi.Controllers
         public async Task<IActionResult> DesignsSearch([FromQuery] string term, [FromQuery] int page)
         {
             int pageSize = 5;
-            var result = await _designService.SearchDesigns(term, pageSize, page);
+            var result = await _posterService.SearchDesigns(term, pageSize, page);
 
             return result.Map<IActionResult>(
                 onSuccess: result => Ok(result),
@@ -40,7 +42,7 @@ namespace WebApi.Controllers
         public async Task<IActionResult> Categories()
         {
             
-            var result = await _designService.GetDesignCategoriesAsync();
+            var result = await _posterService.GetDesignCategoriesAsync();
 
             return result.Map<IActionResult>(
                 onSuccess: result => Ok(result),
@@ -51,7 +53,7 @@ namespace WebApi.Controllers
         [HttpGet("design/{designId}")]
         public async Task<IActionResult> DesignById([FromRoute] int designId)
         {
-            var result = await _designService.GetDesignByIdAsync(designId);
+            var result = await _posterService.GetDesignByIdAsync(designId);
 
             return result.Map<IActionResult>(
                 onSuccess: result => Ok(result),
@@ -63,7 +65,7 @@ namespace WebApi.Controllers
         public async Task<IActionResult> DesignsByCategory([FromRoute]int categoryId, [FromQuery] int page)
         {
             int pageSize = 5;
-            var result = await _designService.GetGesignsByCategoryIdPaginated(categoryId, pageSize, page);
+            var result = await _posterService.GetGesignsByCategoryIdPaginated(categoryId, pageSize, page);
 
             return result.Map<IActionResult>(
                 onSuccess: result => Ok(result),
@@ -75,7 +77,7 @@ namespace WebApi.Controllers
         public async Task<IActionResult> BestsellingDesigns([FromQuery] int page)
         {
             int pageSize = 5;
-            var result = await _designService.GetBestsellingDesignsPaginated(pageSize, page);
+            var result = await _posterService.GetBestsellingDesignsPaginated(pageSize, page);
 
             return result.Map<IActionResult>(
                 onSuccess: result => Ok(result),
@@ -118,6 +120,18 @@ namespace WebApi.Controllers
             }
             var userId = GetLoggedInUserId();
             var result = await _checkoutService.EstimateTotalCost(checkout, userId);
+
+            return result.Map<IActionResult>(
+                onSuccess: result => Ok(result),
+                onFailure: error => BadRequest(error));
+        }
+
+        [Authorize]
+        [HttpGet("orders")]
+        public async Task<IActionResult> Orders()
+        {
+            var userId = GetLoggedInUserId();
+            var result = await _orderService.GetOrdersForUser(userId);
 
             return result.Map<IActionResult>(
                 onSuccess: result => Ok(result),

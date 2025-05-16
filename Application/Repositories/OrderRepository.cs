@@ -66,5 +66,22 @@ namespace Application.Repositories
 
             return result;
         }
+
+        public async Task<List<Order>> GetUserOrders(string userId)
+        {
+            try
+            {
+                return await _storageContext.Order
+                    .Where(o => o.UserId == userId)
+                    .Include(o => o.OrderItems)
+                    .ThenInclude(o => o.Design)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in: DesignRepository.GetUserOrders()");
+                throw;
+            }
+        }
     }
 }

@@ -1,17 +1,17 @@
 using Application;
 using Application.Repositories;
 using Application.Services;
+using Application.Services.External;
 using Application.Validations;
 using Domain;
 using FluentValidation;
 using Infrastracture.Interfaces.IRepositories;
 using Infrastracture.Interfaces.IServices;
+using Infrastracture.Interfaces.IServices.External;
 using Infrastracture.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,12 +24,15 @@ builder.Host.UseSerilog((context, configuration) =>
 builder.Services.
     AddApplication();
 
-//Za sada neka ga ovde
-
 builder.Services.AddScoped<IDesignRepository, DesignRepository>();
-builder.Services.AddScoped<IDesignService, DesignService>();
+builder.Services.AddScoped<IPosterService, PosterService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ICheckoutService, CheckoutService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
+//external
+builder.Services.AddScoped<IPrintfullService, PrintfullService>();
+builder.Services.AddScoped<IPayPallService, PayPallService>();
 
 
 builder.Services.AddScoped<IValidator<CheckoutRequest>, CheckoutValidator>();

@@ -1,7 +1,4 @@
-﻿
-
-
-using Infrastracture.Interfaces.IRepositories;
+﻿using Infrastracture.Interfaces.IRepositories;
 using Infrastracture.Interfaces.IServices;
 using Infrastracture.Models;
 using Infrastructure.Abstractions;
@@ -10,12 +7,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Services
 {
-    public class DesignService : IDesignService
+    public class PosterService : IPosterService
     {
         private readonly IDesignRepository _designRepository;
         private readonly ILogger _logger;
 
-        public DesignService(IDesignRepository designRepository, ILogger<DesignService> logger)
+        public PosterService(IDesignRepository designRepository, ILogger<PosterService> logger)
         {
             _designRepository = designRepository;
             _logger = logger;
@@ -149,5 +146,7 @@ namespace Application.Services
                 throw;
             }
         }
+
+      
     }
 }
