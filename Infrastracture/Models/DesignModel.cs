@@ -6,8 +6,9 @@ namespace Infrastracture.Models
         public long DesignId { get; set; }
         public string DesignName { get; set; }
         public string Description { get; set; }
-        public string? ImgUrl { get; set; }
-        public string? MockUrl { get; set; }
-        public string? ImgForPrintUrl { get; set; }
+        public string? BfImgUrl { get; set; }
+        public string? LowResImgUrl { get; set; }
+        public string? MockImgUrl { get; set; }
+        public string? PrintImgUrl { get; set; }
     }
 }

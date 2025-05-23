@@ -1,6 +1,6 @@
 ﻿
 namespace Application.Constants
-{
+{//TODO => refactor to entity, domain modeling
     public static class Product
     {
         //product

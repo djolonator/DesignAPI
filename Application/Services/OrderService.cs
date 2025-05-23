@@ -38,7 +38,7 @@ namespace Application.Services
                         designModel = new DesignModel
                         {
                             DesignName = orderItem.Design.DesignName,
-                            ImgUrl = orderItem.Design.ImgUrl
+                            LowResImgUrl = orderItem.Design.LowResImgUrl
                         };
                         var orderItemModel = new OrderItemModel
                         {

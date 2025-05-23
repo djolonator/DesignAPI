@@ -73,8 +73,8 @@ namespace Application.Services
                     {
                         DesignId = item.DesignId,
                         DesignName = item.DesignName,
-                        ImgUrl = item.ImgUrl,
-                        MockUrl = item.MockUrl,
+                        LowResImgUrl = item.LowResImgUrl,
+                        MockImgUrl = item.MockImgUrl,
                     };
                     designModels.Add(design);
                 }
@@ -101,8 +101,8 @@ namespace Application.Services
                         DesignId = result.DesignId,
                         DesignName = result.DesignName,
                         Description = result.Description,
-                        ImgUrl = result.ImgUrl,
-                        MockUrl = result.MockUrl,
+                        LowResImgUrl = result.LowResImgUrl,
+                        MockImgUrl = result.MockImgUrl,
                     };
 
                     return Result<DesignModel>.Success(designModel);
@@ -132,8 +132,8 @@ namespace Application.Services
                     {
                         DesignId = item.DesignId,
                         DesignName = item.DesignName,
-                        ImgUrl = item.ImgUrl,
-                        MockUrl = item.MockUrl,
+                        LowResImgUrl = item.LowResImgUrl,
+                        MockImgUrl = item.MockImgUrl,
                     };
                     designModels.Add(design);
                 }

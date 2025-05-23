@@ -184,7 +184,7 @@ namespace Application.Services
             foreach (var i in userOrder.OrderItems)
             {
                 var design = await _designRepository.GetDesignByIdAsync(i.DesignId);
-                if (design != null && !string.IsNullOrEmpty(design.ImgForPrintUrl))
+                if (design != null && !string.IsNullOrEmpty(design.PrintImgUrl))
                 {
                     var item = new PrintfullOrderItem()
                     {
@@ -195,7 +195,7 @@ namespace Application.Services
 
                     item.Files.Add(new FileForPrinting()
                     {
-                        Url = design.ImgForPrintUrl!
+                        Url = design.PrintImgUrl!
                     });
 
                     items.Add(item);

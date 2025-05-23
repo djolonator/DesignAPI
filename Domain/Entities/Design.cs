@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
@@ -15,9 +16,10 @@ namespace Domain.Entities
         public long DesignCategoryId { get; set; }
         public DesignCategory DesignCategory { get; set; }
         public List<OrderItem> OrderItems { get; set; }
-        public string? ImgUrl { get; set; }
-        public string? MockUrl { get; set; }
-        public string? ImgForPrintUrl { get; set; }
-
+        public string? BfImgUrl { get; set; }
+        public string? LowResImgUrl { get; set; }
+        public string? MockImgUrl { get; set; }
+        public string? PrintImgUrl { get; set; }
+        public ImageOrientation ImageOrientation { get; set; }
     }
 }

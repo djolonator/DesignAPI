@@ -16,7 +16,7 @@ namespace Application.Helpers
 
         public static decimal AddKaymakToShiping(decimal shippingPrice)
         {
-            decimal kaymakInPercent = 10;
+            decimal kaymakInPercent = 30;
             decimal calculatedPrice = 0;
 
             calculatedPrice = shippingPrice + shippingPrice / 100 * kaymakInPercent;
