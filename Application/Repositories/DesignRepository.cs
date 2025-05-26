@@ -45,14 +45,11 @@ namespace Application.Repositories
         {
             try
             {
-                return await _storageContext.Design
-                   .AsNoTracking()
-                   .GroupBy(d => d.DesignCategory)
+                return await _storageContext.DesignCategory
                    .Select(g => new DesignCategoryModel
                        {
-                           DesignCategoryId = g.Key.DesignCategoryId,
-                           DesignCategoryName = g.Key.DesignCategoryName,
-                           DesignCount = g.Count()
+                           DesignCategoryId = g.DesignCategoryId,
+                           DesignCategoryName = g.DesignCategoryName
                        })
                    .ToListAsync();
             }
@@ -113,6 +110,23 @@ namespace Application.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in: DesignRepository.GetBestSellersDesigns()");
+                throw;
+            }
+        }
+
+        public async Task<List<Design>> GetDesigns(int pageSize, int page)
+        {
+            try
+            {
+                return await _storageContext.Design
+                   .AsNoTracking()
+                   .Skip(pageSize * page)
+                   .Take(pageSize)
+                   .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in: DesignRepository.GetDesigns()");
                 throw;
             }
         }

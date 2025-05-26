@@ -103,6 +103,7 @@ namespace Application.Services
                         Description = result.Description,
                         LowResImgUrl = result.LowResImgUrl,
                         MockImgUrl = result.MockImgUrl,
+                        BfImgUrl = result.BfImgUrl
                     };
 
                     return Result<DesignModel>.Success(designModel);
@@ -147,6 +148,35 @@ namespace Application.Services
             }
         }
 
-      
+        public async Task<Result<List<DesignModel>>> GetDesignsPaginated(int pageSize, int page)
+        {
+            try
+            {
+                var result = await _designRepository.GetDesigns(pageSize, page);
+                var designModels = new List<DesignModel>();
+                foreach (var item in result)
+                {
+                    var design = new DesignModel
+                    {
+                        DesignId = item.DesignId,
+                        DesignName = item.DesignName,
+                        LowResImgUrl = item.LowResImgUrl,
+                        MockImgUrl = item.MockImgUrl,
+                        PrintImgUrl = item.PrintImgUrl,
+                        BfImgUrl = item.BfImgUrl
+                    };
+                    designModels.Add(design);
+                }
+
+                return Result<List<DesignModel>>.Success(designModels);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in: DesignService.GetDesignsPaginated()");
+                throw;
+            }
+        }
+
+
     }
 }
