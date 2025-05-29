@@ -161,6 +161,26 @@ namespace WebApi.Controllers
                 onFailure: error => BadRequest(error));
         }
 
+        [HttpPost("orderFailedEvent")]
+        public async Task<IActionResult> OrderFailedEvent([FromBody] WebhookPayload webhookPayload)
+        {
+            var result = await _posterService.GetDesignCategoriesAsync();
+
+            return result.Map<IActionResult>(
+                onSuccess: result => Ok(result),
+                onFailure: error => BadRequest(error));
+        }
+
+        [HttpPost("checkOrderStatus")]
+        public async Task<IActionResult> CheckOrderStatus()
+        {
+            var result = await _posterService.GetDesignCategoriesAsync();
+
+            return result.Map<IActionResult>(
+                onSuccess: result => Ok(result),
+                onFailure: error => BadRequest(error));
+        }
+
         private string GetLoggedInUserId()
         {
             var userClaims = User.Claims.ToList();
