@@ -52,6 +52,7 @@ namespace Application.Services
 
                     var orderModel = new OrderModel
                     {
+                        OrderId = order.OrderId,
                         PrintfullOrderId = order.PrintfullOrderId,
                         TotalCost = order.TotalCost,
                         OrderItems = orderItems,
@@ -64,6 +65,54 @@ namespace Application.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in: DesignService.GetOrdersForRecipient()");
+                throw;
+            }
+        }
+
+        public async Task<Result<OrderDetailModel>> GetOrderDetails(long orderId)
+        {
+            try
+            {
+                var order = await _orderRepository.FindOrderById(orderId);
+
+                if (order is not null)
+                {
+                    var printfullOrderDetailsReponse = await _printfullService.GetPrintfullOrder(order.PrintfullOrderId);
+
+                    if (printfullOrderDetailsReponse.IsSuccess)
+                    {
+                        var trackingUrls = new List<string>();
+
+                        foreach(var s in printfullOrderDetailsReponse.Value!.Result.Shipments)
+                        {
+                            trackingUrls.Add(s.TrackingUrl);
+                        }
+
+                        var orderDetailModel = new OrderDetailModel()
+                        {
+                            Status = printfullOrderDetailsReponse.Value!.Result.Status,
+                            Shipping = printfullOrderDetailsReponse.Value.Result.Shipping,
+                            ShippingServiceName = printfullOrderDetailsReponse.Value.Result.ShippingServiceName,
+                            TrackingUrls = trackingUrls,
+                            Recipient = new RecipientModel()
+                            {
+                                FirstName = printfullOrderDetailsReponse.Value.Result.Recipient.Name,
+                                Address = printfullOrderDetailsReponse.Value.Result.Recipient.Address1,
+                                Email = printfullOrderDetailsReponse.Value.Result.Recipient.Email
+                            }
+                        };
+
+                        return Result<OrderDetailModel>.Success(orderDetailModel);
+                    }
+                    
+                }
+
+                return Result<OrderDetailModel>.Failure(new Infrastructure.Abstractions.Errors.Error("Could not get Order Details"));
+                
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in: DesignService.GetOrderDetails()");
                 throw;
             }
         }

@@ -150,6 +150,17 @@ namespace WebApi.Controllers
                 onFailure: error => BadRequest(error));
         }
 
+        [Authorize]
+        [HttpGet("orderDetail")]
+        public async Task<IActionResult> OrderDetail(long orderId)
+        {
+            var result = await _orderService.GetOrderDetails(orderId);
+
+            return result.Map<IActionResult>(
+                onSuccess: result => Ok(result),
+                onFailure: error => BadRequest(error));
+        }
+
         private string GetLoggedInUserId()
         {
             var userClaims = User.Claims.ToList();

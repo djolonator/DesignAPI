@@ -323,7 +323,7 @@ namespace Infrastracture.Models
         public string Service { get; set; }
 
         [JsonPropertyName("tracking_number")]
-        public int? TrackingNumber { get; set; }
+        public string TrackingNumber { get; set; }
 
         [JsonPropertyName("tracking_url")]
         public string TrackingUrl { get; set; }

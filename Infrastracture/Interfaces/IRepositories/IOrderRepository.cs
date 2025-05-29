@@ -9,7 +9,7 @@ namespace Infrastracture.Interfaces.IRepositories
     {
         void SaveChanges();
         public Task<long> CreateOrder(Order order);
-        public Task<Order?> FindOrderById(int id);
+        public Task<Order?> FindOrderById(long orderId);
         Task DeleteOrder(string userId);
         Task<Order?> FindOrderByUserId(string userId, bool isCurrent = false);
         Task<Order?> FindOrderByUserIdNoTracking(string userId, bool isCurrent = false);

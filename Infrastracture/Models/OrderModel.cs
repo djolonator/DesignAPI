@@ -4,6 +4,7 @@ namespace Infrastracture.Models
 {
     public class OrderModel
     {
+        public long OrderId { get; set; }
         public long PrintfullOrderId { get; set; }
         public decimal TotalCost { get; set; }
         public List<OrderItemModel> OrderItems { get; set; }

@@ -32,9 +32,9 @@ namespace Application.Repositories
             return order.OrderId;
         }
 
-        public async Task<Order?> FindOrderById(int id)
+        public async Task<Order?> FindOrderById(long orderId)
         {
-            return await _storageContext.Order.FirstOrDefaultAsync(o => o.OrderId == id);
+            return await _storageContext.Order.FirstOrDefaultAsync(o => o.OrderId == orderId);
         }
 
         public async Task<Order?> FindOrderByUserId(string userId, bool isCurrent = false)
