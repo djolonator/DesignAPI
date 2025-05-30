@@ -42,7 +42,6 @@ namespace Application.Services.External
             }
             catch (Exception ex)
             {
-                //error message from printfull api resposnse for logs
                 _logger.LogError(ex, "Error in: PrintfullService/orders/estimate-costs");
             }
 

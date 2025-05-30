@@ -84,11 +84,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseSerilogRequestLogging();
 app.MapIdentityApi<IdentityUser>();
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors(corsPolicy);
-app.UseSerilogRequestLogging();
 app.UseAuthorization();
 app.MapControllers();
 
