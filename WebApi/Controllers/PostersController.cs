@@ -1,28 +1,32 @@
-﻿using FluentValidation;
+﻿using Application;
+using FluentValidation;
 using Infrastracture.Interfaces.IServices;
 using Infrastracture.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace WebApi.Controllers
 {
     //[Route("api")]
     [ApiController]
-    [EnableCors("AllowLocalhost3000")]
+    //[EnableCors("AllowLocalhost3000")]
     public class PostersController : ControllerBase
     {
         private readonly IPosterService _posterService;
         private readonly ICheckoutService _checkoutService;
         private readonly IOrderService _orderService;
         private readonly IValidator<CheckoutRequest> _validator;
+        private readonly IOptions<AppSettings> _options;
 
-        public PostersController(IPosterService posterService, ICheckoutService checkoutService, IValidator<CheckoutRequest> validator, IOrderService orderService)
+        public PostersController(IPosterService posterService, ICheckoutService checkoutService, IValidator<CheckoutRequest> validator, IOrderService orderService, IOptions<AppSettings> options)
         {
             _posterService = posterService;
             _checkoutService = checkoutService;
             _validator = validator;
             _orderService = orderService;
+            _options = options;
         }
 
         [Authorize]

@@ -16,7 +16,8 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<StorageDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .EnableDetailedErrors());
 
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
@@ -42,12 +43,15 @@ builder.Services.AddScoped<IValidator<RecipientModel>, RecipientValidator>();
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 
 builder.Services.AddControllers();
+
+var corsPolicy = builder.Configuration["AppSettings:CORS_POLICY"]!;
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowLocalhost3000",
+    
+    options.AddPolicy(corsPolicy,
         builder =>
         {
-            builder.WithOrigins("http://localhost:3000")
+            builder.WithOrigins(corsPolicy)
                    .AllowAnyMethod()
                    .AllowAnyHeader();
         });
@@ -81,7 +85,7 @@ if (app.Environment.IsDevelopment())
 
 app.MapIdentityApi<IdentityUser>();
 
-app.UseCors("AllowLocalhost3000");
+app.UseCors(corsPolicy);
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 app.UseAuthorization();
