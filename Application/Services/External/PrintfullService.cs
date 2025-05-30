@@ -5,15 +5,18 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Infrastructure.Abstractions.Errors;
 using Infrastracture.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services.External
 {
     public class PrintfullService : IPrintfullService
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        public PrintfullService(IHttpClientFactory httpClientFactory)
+        private readonly ILogger _logger;
+        public PrintfullService(IHttpClientFactory httpClientFactory, ILogger<PrintfullService> logger)
         {
             _httpClientFactory = httpClientFactory;
+            _logger = logger;
         }
 
         public async Task<Result<EstimatePrintfullOrderCosts>> EstimatePrintfullOrderCosts(CheckoutRequest checkoutRequest, CreatePrintfullOrderRequest orderBody)
@@ -33,12 +36,14 @@ namespace Application.Services.External
                 else
                 {
                     var error = JsonSerializer.Deserialize<ErrorResponsePrintfull>(content);
+                    _logger.LogError(error.Error.Message, "Error in: PrintfullService/orders/estimate-costs");
                 }
 
             }
             catch (Exception ex)
             {
                 //error message from printfull api resposnse for logs
+                _logger.LogError(ex, "Error in: PrintfullService/orders/estimate-costs");
             }
 
             return Result<EstimatePrintfullOrderCosts>.Failure(new Error("Could not process order right now"));
@@ -61,12 +66,14 @@ namespace Application.Services.External
                 else
                 {
                     var error = JsonSerializer.Deserialize<ErrorResponsePrintfull>(content);
+                    _logger.LogError(error.Error.Message, "Error in: PrintfullService.CreatePrintfullOrder()");
                 }
 
             }
             catch (Exception ex)
             {
                 //error message from printfull api resposnse for logs
+                _logger.LogError(ex, "Error in: PrintfullService.CreatePrintfullOrder()");
             }
 
             return Result<PrintfullOrderResponse>.Failure(new Error("Could not process order right now"));
@@ -97,16 +104,23 @@ namespace Application.Services.External
             try
             {
                 result = await client.GetAsync($"/orders/{orderId}");
+                var content = await result.Content.ReadAsStringAsync();
 
                 if (result.IsSuccessStatusCode)
                 {
-                    var content = await result.Content.ReadAsStringAsync();
+                    
                     return Result<PrintfullOrderResponseGet>.Success(JsonSerializer.Deserialize<PrintfullOrderResponseGet>(content));
+                }
+                else
+                {
+                    var error = JsonSerializer.Deserialize<ErrorResponsePrintfull>(content);
+                    _logger.LogError(error.Error.Message, "Error in: PrintfullService.GetPrintfullOrder()");
                 }
 
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error in: PrintfullService.GetPrintfullOrder()");
             }
 
             return Result<PrintfullOrderResponseGet>.Failure(new Error("Message from response"));//error message from printfull api resposnse
@@ -131,12 +145,14 @@ namespace Application.Services.External
                 {
                     var content = await result.Content.ReadAsStringAsync();
                     var error = JsonSerializer.Deserialize<ErrorResponsePrintfull>(content);
+                    _logger.LogError(error.Error.Message, "Error in: PrintfullService.GetPrintfullOrder()");
                     return Result<Generic>.Failure(new Error("Could not confirm order"));
                 }
 
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error in: PrintfullService.GetPrintfullOrder()");
             }
 
             return Result<Generic>.Failure(new Error("Could not confirm order"));
