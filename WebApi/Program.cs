@@ -45,13 +45,14 @@ builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSet
 builder.Services.AddControllers();
 
 var corsPolicy = builder.Configuration["AppSettings:CORS_POLICY"]!;
+var allowedOigins = builder.Configuration.GetSection("AppSettings:ALLOWED_ORIGINS").Get<string[]>();
 builder.Services.AddCors(options =>
 {
     
     options.AddPolicy(corsPolicy,
         builder =>
         {
-            builder.WithOrigins(corsPolicy)
+            builder.WithOrigins(allowedOigins!)
                    .AllowAnyMethod()
                    .AllowAnyHeader();
         });
