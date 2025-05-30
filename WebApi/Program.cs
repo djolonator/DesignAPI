@@ -85,10 +85,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapIdentityApi<IdentityUser>();
-
+app.UseHttpsRedirection();
+app.UseRouting();
 app.UseCors(corsPolicy);
 app.UseSerilogRequestLogging();
-app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
