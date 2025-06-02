@@ -168,10 +168,10 @@ namespace WebApi.Controllers
         [HttpPost("orderFailedEvent")]
         public async Task<IActionResult> OrderFailedEvent([FromBody] WebhookPayload webhookPayload)
         {
-            var result = await _posterService.GetDesignCategoriesAsync();
+            var result = await _posterService.OrderCancel(webhookPayload);
 
             return result.Map<IActionResult>(
-                onSuccess: result => Ok(result),
+                onSuccess: () => Ok(),
                 onFailure: error => BadRequest(error));
         }
 
