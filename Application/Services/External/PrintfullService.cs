@@ -23,6 +23,8 @@ namespace Application.Services.External
         {
             var client = _httpClientFactory.CreateClient("printfull");
             var result = new HttpResponseMessage();
+            var token = client.DefaultRequestHeaders.Authorization?.Parameter;
+            _logger.LogInformation("Printful token suffix: {suffix}", token?.Substring(Math.Max(0, token.Length - 4)));
 
             try
             {
