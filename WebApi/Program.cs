@@ -44,8 +44,8 @@ builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSet
 
 builder.Services.AddControllers();
 
-var corsPolicy = builder.Configuration["AppSettings:CORS_POLICY"]!;
-var allowedOigins = builder.Configuration.GetSection("AppSettings:ALLOWED_ORIGINS").Get<string[]>();
+var corsPolicy = builder.Configuration["AppSettings:CorsPolicy"]!;
+var allowedOigins = builder.Configuration.GetSection("AppSettings:AllowedOrigins").Get<string[]>();
 builder.Services.AddCors(options =>
 {
     
@@ -67,8 +67,8 @@ builder.Services.AddHttpClient("printfull", c =>
 {
     c.BaseAddress = new Uri("https://api.printful.com/");
     c.DefaultRequestHeaders.Add("Accept", "application/json");
-    c.DefaultRequestHeaders.Add("X-PF-Store-Id", builder.Configuration.GetSection("AppSettings").GetSection("STORE_ID").Value);
-    c.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", builder.Configuration.GetSection("AppSettings").GetSection("PRINTFULL_TOKEN").Value);
+    c.DefaultRequestHeaders.Add("X-PF-Store-Id", builder.Configuration.GetSection("AppSettings").GetSection("PrintfullStoreID").Value);
+    c.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", builder.Configuration.GetSection("AppSettings").GetSection("PrintfullToken").Value);
 
 });
 builder.Services.AddAuthorization();
