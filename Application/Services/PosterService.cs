@@ -176,19 +176,5 @@ namespace Application.Services
                 throw;
             }
         }
-
-        public async Task<Infrastructure.Abstractions.Result> OrderCancel(WebhookPayload webhookPayload)
-        {
-            try
-            {
-                _logger.LogInformation("Order with payload canceled {@webhookPayload}", webhookPayload);
-                return Infrastructure.Abstractions.Result.Success();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Error in: DesignService.OrderCancel() with exception {@ex}", ex);
-                throw;
-            }
-        }
     }
 }

@@ -13,12 +13,14 @@ namespace Application.Services
         private readonly IOrderRepository _orderRepository;
         private readonly ILogger _logger;
         private readonly IPrintfullService _printfullService;
+        private readonly IPayPallService _payPallService;
 
-        public OrderService(IOrderRepository orderRepository, ILogger<PosterService> logger, IPrintfullService printfullService)
+        public OrderService(IOrderRepository orderRepository, ILogger<PosterService> logger, IPrintfullService printfullService, IPayPallService payPallService)
         {
             _orderRepository = orderRepository;
             _logger = logger;
             _printfullService = printfullService;
+            _payPallService = payPallService;
         }
         
         public async Task<Result<List<OrderModel>>> GetOrdersForUser(string userId)
@@ -112,6 +114,33 @@ namespace Application.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in: DesignService.GetOrderDetails()");
+                throw;
+            }
+        }
+
+        public async Task<Infrastructure.Abstractions.Result> OrderCancel(WebhookPayload webhookPayload)
+        {
+            try
+            {
+                var printfullOrderId = webhookPayload.Data!.Order!.Id!;
+                var order = await _orderRepository.FindOrderByPrintfullId((long)printfullOrderId);
+
+                if (order is not null)
+                {
+                    var result = await _payPallService.RefundCapturedPayment(order.PaypallCaptureId);
+
+                    if ((result.StatusCode == 200 || result.StatusCode == 201) && result.Data.Status == PaypalServerSdk.Standard.Models.RefundStatus.Completed)
+                    {
+                        return Infrastructure.Abstractions.Result.Success();
+                    }
+                }
+
+                _logger.LogError("Error in: OrderService.OrderCancel() with exception {@printfullOrderId}", printfullOrderId);
+                return Infrastructure.Abstractions.Result.Failure(new Infrastructure.Abstractions.Errors.Error("Could not refund paypallPayment"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error in: OrderService.OrderCancel() with exception {@ex}", ex);
                 throw;
             }
         }
