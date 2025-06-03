@@ -1,6 +1,4 @@
-﻿
-using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
@@ -19,6 +17,4 @@ namespace Domain.Entities
         public List<OrderItem> OrderItems {  get; set; }    
         public Recipient Recipient { get; set; }
     }
-
-    
 }
