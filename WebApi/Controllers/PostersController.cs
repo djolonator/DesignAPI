@@ -165,9 +165,8 @@ namespace WebApi.Controllers
 
         [HttpPost("orderFailedEvent")]
         [EnableCors("AllowAll")]
-        public async Task<IActionResult> OrderFailedEvent(/*[FromBody] WebhookPayload webhookPayload*/)
+        public async Task<IActionResult> OrderFailedEvent([FromBody] WebhookPayload webhookPayload)
         {
-            var webhookPayload = new Infrastracture.Models.WebhookPayload();
             var result = await _posterService.OrderCancel(webhookPayload);
 
             return result.Map<IActionResult>(

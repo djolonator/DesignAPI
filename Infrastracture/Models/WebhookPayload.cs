@@ -17,7 +17,7 @@ namespace Infrastracture.Models
         public int? Store { get; set; }
 
         [JsonPropertyName("data")]
-        public OrderFailedData Data { get; set; }
+        public OrderFailedData? Data { get; set; }
 
         public class OrderFailedData
         {
@@ -25,7 +25,7 @@ namespace Infrastracture.Models
             public string? Reason { get; set; }
 
             [JsonPropertyName("order")]
-            public Order Order { get; set; }
+            public Order? Order { get; set; }
         }
 
         public class Order
@@ -55,34 +55,34 @@ namespace Infrastracture.Models
             public long? Updated { get; set; }
 
             [JsonPropertyName("recipient")]
-            public Recipient Recipient { get; set; }
+            public Recipient? Recipient { get; set; }
 
             [JsonPropertyName("items")]
-            public List<Item> Items { get; set; }
+            public List<Item>? Items { get; set; }
 
             [JsonPropertyName("branding_items")]
-            public List<Item> BrandingItems { get; set; }
+            public List<Item>? BrandingItems { get; set; }
 
             [JsonPropertyName("incomplete_items")]
-            public List<IncompleteItem> IncompleteItems { get; set; }
+            public List<IncompleteItem>? IncompleteItems { get; set; }
 
             [JsonPropertyName("costs")]
-            public Costs Costs { get; set; }
+            public Costs? Costs { get; set; }
 
             [JsonPropertyName("retail_costs")]
-            public Costs RetailCosts { get; set; }
+            public Costs? RetailCosts { get; set; }
 
             [JsonPropertyName("pricing_breakdown")]
-            public List<PricingBreakdown> PricingBreakdown { get; set; }
+            public List<PricingBreakdown>? PricingBreakdown { get; set; }
 
             [JsonPropertyName("shipments")]
-            public List<Shipment> Shipments { get; set; }
+            public List<Shipment>? Shipments { get; set; }
 
             [JsonPropertyName("gift")]
-            public Gift Gift { get; set; }
+            public Gift? Gift { get; set; }
 
             [JsonPropertyName("packing_slip")]
-            public PackingSlip PackingSlip { get; set; }
+            public PackingSlip? PackingSlip { get; set; }
         }
 
         public class Recipient
@@ -169,7 +169,7 @@ namespace Infrastracture.Models
             public List<File> Files { get; set; }
 
             [JsonPropertyName("options")]
-            public List<Option> Options { get; set; }
+            public List<Option>? Options { get; set; }
 
             [JsonPropertyName("sku")]
             public string? Sku { get; set; }
@@ -208,7 +208,7 @@ namespace Infrastracture.Models
             public string? Url { get; set; }
 
             [JsonPropertyName("options")]
-            public List<Option> Options { get; set; }
+            public List<Option>? Options { get; set; }
 
             [JsonPropertyName("hash")]
             public string? Hash { get; set; }
@@ -358,7 +358,7 @@ namespace Infrastracture.Models
             public bool Reshipment { get; set; }
 
             [JsonPropertyName("items")]
-            public List<ShipmentItem> Items { get; set; }
+            public List<ShipmentItem>? Items { get; set; }
         }
 
         public class ShipmentItem
