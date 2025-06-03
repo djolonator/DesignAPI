@@ -18,15 +18,13 @@ namespace WebApi.Controllers
         private readonly ICheckoutService _checkoutService;
         private readonly IOrderService _orderService;
         private readonly IValidator<CheckoutRequest> _validator;
-        private readonly IOptions<AppSettings> _options;
 
-        public PostersController(IPosterService posterService, ICheckoutService checkoutService, IValidator<CheckoutRequest> validator, IOrderService orderService, IOptions<AppSettings> options)
+        public PostersController(IPosterService posterService, ICheckoutService checkoutService, IValidator<CheckoutRequest> validator, IOrderService orderService)
         {
             _posterService = posterService;
             _checkoutService = checkoutService;
             _validator = validator;
             _orderService = orderService;
-            _options = options;
         }
 
         [Authorize]
@@ -167,8 +165,9 @@ namespace WebApi.Controllers
 
         [HttpPost("orderFailedEvent")]
         [EnableCors("AllowAll")]
-        public async Task<IActionResult> OrderFailedEvent([FromBody] WebhookPayload webhookPayload)
+        public async Task<IActionResult> OrderFailedEvent(/*[FromBody] WebhookPayload webhookPayload*/)
         {
+            var webhookPayload = new Infrastracture.Models.WebhookPayload();
             var result = await _posterService.OrderCancel(webhookPayload);
 
             return result.Map<IActionResult>(
