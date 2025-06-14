@@ -4,7 +4,6 @@ using Application.Services;
 using Application.Services.External;
 using Application.Validations;
 using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
 using Domain;
 using FluentValidation;
 using Infrastracture.Interfaces.IRepositories;
@@ -14,7 +13,8 @@ using Infrastracture.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using System;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,22 +25,35 @@ builder.Services.AddDbContext<StorageDbContext>(options =>
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
+
 builder.Services.
     AddApplication();
 
 
-var keyVaultUri = new Uri("https://designs.vault.azure.net/");
-builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
-
-string? paypalClientIdFromVault = builder.Configuration["ppclid"];
-
-string? paypalClientNameFromVault = builder.Configuration["ppcls"];
-
-if (!string.IsNullOrEmpty(paypalClientIdFromVault) && !string.IsNullOrEmpty(paypalClientNameFromVault))
+try
 {
-    builder.Configuration["AppSettings:PAYPAL_CLIENT_ID"] = paypalClientIdFromVault;
-    builder.Configuration["AppSettings:PAYPAL_CLIENT_SECRET"] = paypalClientNameFromVault;
+    var keyVaultUri = new Uri("https://designs.vault.azure.net/");
+    builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
+
+    string? paypalClientIdFromVault = builder.Configuration["ppclid"];
+
+    string? paypalClientNameFromVault = builder.Configuration["ppcls"];
+
+    if (!string.IsNullOrEmpty(paypalClientIdFromVault) && !string.IsNullOrEmpty(paypalClientNameFromVault))
+    {
+        builder.Configuration["AppSettings:PAYPAL_CLIENT_ID"] = paypalClientIdFromVault;
+        builder.Configuration["AppSettings:PAYPAL_CLIENT_SECRET"] = paypalClientNameFromVault;
+    }
 }
+catch(Exception ex)
+{
+    Log.Error(ex, "Failed to load secrets from Azure Key Vault.");
+}
+
 
 
 builder.Services.AddScoped<IDesignRepository, DesignRepository>();
@@ -110,4 +123,17 @@ app.UseCors(corsPolicy);
 app.UseAuthorization();
 app.MapControllers();
 
-app.Run();
+try
+{
+    app.Run();
+}
+catch(Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly.");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
+
+
