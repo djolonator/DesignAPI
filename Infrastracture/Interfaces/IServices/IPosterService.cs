@@ -12,6 +12,5 @@ namespace Infrastracture.Interfaces.IServices
         Task<Result<DesignModel>> GetDesignByIdAsync(int designId);
         Task<Result<List<DesignModel>>> GetBestsellingDesignsPaginated(int pageSize, int page);
         Task<Result<List<DesignModel>>> GetDesignsPaginated(int pageSize, int page);
-
     }
 }

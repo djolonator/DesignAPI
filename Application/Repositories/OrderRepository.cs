@@ -79,7 +79,22 @@ namespace Application.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in: DesignRepository.GetUserOrders()");
+                _logger.LogError(ex, "Error in: OrderRepository.GetUserOrders()");
+                throw;
+            }
+        }
+
+        public async Task<Order?> FindOrderByPrintfullId(long printfullOrderId)
+        {
+            try
+            {
+                return await _storageContext.Order
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(o => o.PrintfullOrderId == printfullOrderId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in: OrderRepository.FindOrderByPrintfullId()");
                 throw;
             }
         }

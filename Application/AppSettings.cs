@@ -2,9 +2,9 @@
 {
     public record AppSettings
     {
-        public string? PAYPAL_CLIENT_ID { get; set; }
-        public string? PAYPAL_CLIENT_SECRET { get; set; }
-        public string? CORS_POLICY { get; set; }
+        public string? PayPallClientID { get; set; }
+        public string? PayPallClientSecret { get; set; }
+        public string? CorsPolicy { get; set; }
 
     }
 }

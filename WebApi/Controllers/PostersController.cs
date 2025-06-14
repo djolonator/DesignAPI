@@ -1,32 +1,25 @@
-﻿using Application;
-using FluentValidation;
+﻿using FluentValidation;
 using Infrastracture.Interfaces.IServices;
 using Infrastracture.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace WebApi.Controllers
 {
-    //[Route("api")]
     [ApiController]
-    //[EnableCors("AllowLocalhost3000")]
     public class PostersController : ControllerBase
     {
         private readonly IPosterService _posterService;
         private readonly ICheckoutService _checkoutService;
         private readonly IOrderService _orderService;
         private readonly IValidator<CheckoutRequest> _validator;
-        private readonly IOptions<AppSettings> _options;
 
-        public PostersController(IPosterService posterService, ICheckoutService checkoutService, IValidator<CheckoutRequest> validator, IOrderService orderService, IOptions<AppSettings> options)
+        public PostersController(IPosterService posterService, ICheckoutService checkoutService, IValidator<CheckoutRequest> validator, IOrderService orderService)
         {
             _posterService = posterService;
             _checkoutService = checkoutService;
             _validator = validator;
             _orderService = orderService;
-            _options = options;
         }
 
         [Authorize]
@@ -168,20 +161,10 @@ namespace WebApi.Controllers
         [HttpPost("orderFailedEvent")]
         public async Task<IActionResult> OrderFailedEvent([FromBody] WebhookPayload webhookPayload)
         {
-            var result = await _posterService.GetDesignCategoriesAsync();
+            var result = await _orderService.OrderCancel(webhookPayload);
 
             return result.Map<IActionResult>(
-                onSuccess: result => Ok(result),
-                onFailure: error => BadRequest(error));
-        }
-
-        [HttpPost("checkOrderStatus")]
-        public async Task<IActionResult> CheckOrderStatus()
-        {
-            var result = await _posterService.GetDesignCategoriesAsync();
-
-            return result.Map<IActionResult>(
-                onSuccess: result => Ok(result),
+                onSuccess: () => Ok(),
                 onFailure: error => BadRequest(error));
         }
 

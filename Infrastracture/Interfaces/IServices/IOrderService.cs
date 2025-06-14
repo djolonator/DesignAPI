@@ -7,5 +7,6 @@ namespace Infrastracture.Interfaces.IServices
     {
         Task<Result<List<OrderModel>>> GetOrdersForUser(string userId);
         Task<Result<OrderDetailModel>> GetOrderDetails(long orderId);
+        Task<Infrastructure.Abstractions.Result> OrderCancel(WebhookPayload webhookPayload);
     }
 }

@@ -19,8 +19,8 @@ namespace Application.Services.External
 
         public PayPallService(IOptions<AppSettings> appSettings)
         {
-            _paypalClientId = appSettings.Value!.PAYPAL_CLIENT_ID!;
-            _paypalClientSecret = appSettings.Value!.PAYPAL_CLIENT_SECRET!;
+            _paypalClientId = appSettings.Value!.PayPallClientID!;
+            _paypalClientSecret = appSettings.Value!.PayPallClientSecret!;
             _paymentIntentMap = new Dictionary<string, CheckoutPaymentIntent> {
               {
                 "CAPTURE",
