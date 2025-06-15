@@ -46,14 +46,10 @@ try
     var ppId = await client.GetSecretAsync("ppclid");
     var pps = await client.GetSecretAsync("ppcls");
 
-    string? paypalClientIdFromVault = builder.Configuration["ppclid"];
-
-    string? paypalClientNameFromVault = builder.Configuration["ppcls"];
-
     if (!string.IsNullOrEmpty(ppId.Value.Value) && !string.IsNullOrEmpty(pps.Value.Value))
     {
-        builder.Configuration["AppSettings:PAYPAL_CLIENT_ID"] = paypalClientIdFromVault;
-        builder.Configuration["AppSettings:PAYPAL_CLIENT_SECRET"] = paypalClientNameFromVault;
+        builder.Configuration["AppSettings:PAYPAL_CLIENT_ID"] = ppId.Value.Value;
+        builder.Configuration["AppSettings:PAYPAL_CLIENT_SECRET"] = pps.Value.Value;
     }
 }
 catch(Exception ex)
