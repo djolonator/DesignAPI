@@ -3,8 +3,6 @@ using Application.Repositories;
 using Application.Services;
 using Application.Services.External;
 using Application.Validations;
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
 using Domain;
 using FluentValidation;
 using Infrastracture.Interfaces.IRepositories;
@@ -13,7 +11,6 @@ using Infrastracture.Interfaces.IServices.External;
 using Infrastracture.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 
@@ -34,28 +31,6 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Services.
     AddApplication();
-
-
-try
-{
-
-    var kvUri = "https://designs.vault.azure.net/";
-    var client = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
-
-
-    var ppId = await client.GetSecretAsync("ppclid");
-    var pps = await client.GetSecretAsync("ppcls");
-
-    if (!string.IsNullOrEmpty(ppId.Value.Value) && !string.IsNullOrEmpty(pps.Value.Value))
-    {
-        builder.Configuration["AppSettings:PAYPAL_CLIENT_ID"] = ppId.Value.Value;
-        builder.Configuration["AppSettings:PAYPAL_CLIENT_SECRET"] = pps.Value.Value;
-    }
-}
-catch(Exception ex)
-{
-    Log.Error(ex, "Failed to load secrets from Azure Key Vault.");
-}
 
 
 
