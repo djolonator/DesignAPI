@@ -16,8 +16,9 @@ namespace Application.Services.External
         private readonly Dictionary<string, CheckoutPaymentIntent> _paymentIntentMap;
         private string _paypalClientId;
         private string _paypalClientSecret;
+        private readonly ILogger _logger;
 
-        public PayPallService(IOptions<AppSettings> appSettings)
+        public PayPallService(IOptions<AppSettings> appSettings, ILogger<PayPallService> logger)
         {
             _paypalClientId = appSettings.Value!.PayPallClientID!;
             _paypalClientSecret = appSettings.Value!.PayPallClientSecret!;
@@ -47,6 +48,7 @@ namespace Application.Services.External
 
             _ordersController = client.OrdersController;
             _paymentsController = client.PaymentsController;
+            _logger = logger;
         }
 
         public async Task<ApiResponse<PaypalServerSdk.Standard.Models.Order>> CreatePaypallOrder(string amount)
@@ -76,7 +78,7 @@ namespace Application.Services.External
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex, "Error in: PayPallService.CreatePaypallOrder()");
             }
 
             return new ApiResponse<PaypalServerSdk.Standard.Models.Order>(500, new Dictionary<string, string>(), new PaypalServerSdk.Standard.Models.Order());

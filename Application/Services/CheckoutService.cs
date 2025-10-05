@@ -8,6 +8,7 @@ using Application.Helpers;
 using Domain.Entities;
 using Order = PaypalServerSdk.Standard.Models.Order;
 using Infrastracture.Interfaces.IServices.External;
+using Microsoft.Extensions.Logging;
 
 
 namespace Application.Services
@@ -18,13 +19,19 @@ namespace Application.Services
         private readonly IDesignRepository _designRepository;
         private readonly IPayPallService _payPallService;
         private readonly IPrintfullService _printfullService;
+        private readonly ILogger _logger;
 
-        public CheckoutService(IPrintfullService printfullService, IOrderRepository orderRepository, IDesignRepository designRepository, IPayPallService payPallService)
+        public CheckoutService(IPrintfullService printfullService, 
+            IOrderRepository orderRepository, 
+            IDesignRepository designRepository, 
+            IPayPallService payPallService,
+            ILogger<CheckoutService> logger)
         {
             _orderRepository = orderRepository;
             _payPallService = payPallService;
             _printfullService = printfullService;
             _designRepository = designRepository;
+            _logger = logger;
         }
 
         public async Task<Result<ApiResponse<PaypalServerSdk.Standard.Models.Order>>> HandleInitiatePaypallOrder(string userId)
@@ -41,13 +48,19 @@ namespace Application.Services
                 }
                 else
                 {
+                    _logger.LogError("Error in: CheckoutService.HandleInitiatePaypallOrder {@CreatePaypallOrderResult}", createPaypallOrderResult);
                     //see if delete here
                     var deleteResult = _orderRepository.DeleteOrder(userOrder);
                     _orderRepository.SaveChanges();
                 }
             }
+            else
+            {
+                _logger.LogError("Error in: CheckoutService.HandleInitiatePaypallOrder: user order not found");
+            }
 
             return Result<ApiResponse<Order>>.Failure(new Error("Something went wrong with order processing"));
+
         }
 
         public async Task<Result<ApiResponse<PaypalServerSdk.Standard.Models.Order>>> HandleCapturePaypallOrder(string paypallOrderId, string userId)
