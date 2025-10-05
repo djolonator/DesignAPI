@@ -34,7 +34,7 @@ namespace Application.Services.External
             };
 
             PaypalServerSdkClient client = new PaypalServerSdkClient.Builder()
-              .Environment(PaypalServerSdk.Standard.Environment.Sandbox)
+              .Environment(PaypalServerSdk.Standard.Environment.Production)
               .ClientCredentialsAuth(
                 new ClientCredentialsAuthModel.Builder(_paypalClientId, _paypalClientSecret).Build()
               )
