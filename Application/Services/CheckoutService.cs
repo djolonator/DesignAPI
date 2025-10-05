@@ -56,7 +56,7 @@ namespace Application.Services
             }
             else
             {
-                _logger.LogError("Error in: CheckoutService.HandleInitiatePaypallOrder: user order not found");
+                _logger.LogError("Error in: CheckoutService.HandleInitiatePaypallOrder: user with id {userId} order not found", userId);
             }
 
             return Result<ApiResponse<Order>>.Failure(new Error("Something went wrong with order processing"));
